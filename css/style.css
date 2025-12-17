@@ -1,0 +1,7 @@
+body { font-family: Arial; background:#f5f7fa; padding:20px }
+.card { max-width:400px; margin:auto; background:white; padding:20px; border-radius:10px }
+select, textarea, button { width:100%; margin:8px 0; padding:10px }
+button { background:#009688; color:white; border:none; cursor:pointer }
+#chat div { padding:10px; margin:6px 0; border-radius:6px }
+.assistant { background:#e3f2fd }
+.user { background:#e0f7fa }
