@@ -1,25 +1,32 @@
-const conversation = JSON.parse(localStorage.getItem("conversation"));
+const API = "https://interview-gpt-backend-00vj.onrender.com";
 
-fetch(`${BACKEND_URL}/feedback`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ conversation })
-})
-.then(r => r.json())
-.then(data => {
-  new Chart(document.getElementById("chart"), {
-    type: "radar",
-    data: {
-      labels: Object.keys(data.scores),
-      datasets: [{
-        data: Object.values(data.scores),
-        backgroundColor: "rgba(0,150,136,0.2)"
-      }]
-    }
+async function loadFeedback() {
+  const conversation = JSON.parse(localStorage.getItem("conversation")) || [];
+
+  const res = await fetch(`${API}/feedback`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ conversation })
   });
 
-  document.getElementById("textFeedback").innerHTML = `
-    <h3>Strengths</h3><ul>${data.strengths.map(s=>`<li>${s}</li>`).join("")}</ul>
-    <h3>Improvements</h3><ul>${data.improvements.map(i=>`<li>${i}</li>`).join("")}</ul>
+  const data = await res.json();
+
+  if (data.error) {
+    document.body.innerHTML += "<p>Feedback failed</p>";
+    return;
+  }
+
+  document.getElementById("scores").innerHTML = `
+    Communication: ${data.scores.communication}<br>
+    Clarity: ${data.scores.clarity}<br>
+    Confidence: ${data.scores.confidence}
   `;
-});
+
+  document.getElementById("strengths").innerHTML =
+    data.strengths.map(s => `<li>${s}</li>`).join("");
+
+  document.getElementById("improvements").innerHTML =
+    data.improvements.map(i => `<li>${i}</li>`).join("");
+}
+
+loadFeedback();
