@@ -1,65 +1,65 @@
-let recognition;
+const API = "https://interview-gpt-backend-00vj.onrender.com";
+
 let conversation = [];
+let setup = JSON.parse(localStorage.getItem("setup"));
 
-const setup = JSON.parse(localStorage.getItem("setup"));
-
-async function askCoach(userText = "") {
-  const res = await fetch(`${BACKEND_URL}/interview`, {
+async function startInterview() {
+  const res = await fetch(`${API}/interview`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      ...setup,
+      role: setup.role,
+      experience: setup.experience,
+      company: setup.company,
       conversation,
-      userText
+      userText: ""
     })
   });
 
   const data = await res.json();
-  if (data.question) {
-    conversation.push({ role: "assistant", content: data.question });
-    renderChat();
-  }
+  addCoachMessage(data.question);
+  conversation.push({ role: "assistant", content: data.question });
 }
 
-function renderChat() {
-  const chat = document.getElementById("chat");
-  chat.innerHTML = "";
-  conversation.forEach(m => {
-    const div = document.createElement("div");
-    div.className = m.role;
-    div.innerText = `${m.role === "assistant" ? "Coach" : "You"}: ${m.content}`;
-    chat.appendChild(div);
-  });
-}
-
-function submitAnswer() {
-  const text = document.getElementById("answer").value.trim();
+async function submitAnswer() {
+  const input = document.getElementById("answer");
+  const text = input.value.trim();
   if (!text) return;
 
+  addUserMessage(text);
   conversation.push({ role: "user", content: text });
-  document.getElementById("answer").value = "";
-  renderChat();
-  askCoach(text);
+  input.value = "";
+
+  const res = await fetch(`${API}/interview`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      role: setup.role,
+      experience: setup.experience,
+      company: setup.company,
+      conversation,
+      userText: text
+    })
+  });
+
+  const data = await res.json();
+  addCoachMessage(data.question);
+  conversation.push({ role: "assistant", content: data.question });
 }
 
-function endInterview() {
+async function endInterview() {
   localStorage.setItem("conversation", JSON.stringify(conversation));
   window.location.href = "feedback.html";
 }
 
-/* 🎤 MIC */
-function startMic() {
-  recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  recognition.continuous = true;
-  recognition.onresult = e => {
-    document.getElementById("answer").value += e.results[e.results.length - 1][0].transcript;
-  };
-  recognition.start();
+/* UI helpers */
+function addCoachMessage(text) {
+  document.getElementById("chat").innerHTML += `<p><b>Coach:</b> ${text}</p>`;
 }
 
-function stopMic() {
-  if (recognition) recognition.stop();
+function addUserMessage(text) {
+  document.getElementById("chat").innerHTML += `<p><b>You:</b> ${text}</p>`;
 }
 
-/* Start interview */
-askCoach();
+/* AUTO START */
+startInterview();
