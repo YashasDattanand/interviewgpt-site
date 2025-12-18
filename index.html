@@ -4,31 +4,33 @@
   <title>InterviewGPT – Setup</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="center">
+<body>
 
-  <div class="card">
-    <h1>Start Mock Interview</h1>
+<h1>Interview Setup</h1>
 
-    <select id="role">
-      <option value="">Select Role</option>
-      <option value="product_manager">Product Manager</option>
-    </select>
+<label>Role</label>
+<select id="role">
+  <option value="product_manager">Product Manager</option>
+  <option value="tech_consultant">Tech Consultant</option>
+  <option value="data_analyst">Data Analyst</option>
+</select>
 
-    <select id="experience">
-      <option value="">Experience</option>
-      <option value="0-1">0–1 years</option>
-      <option value="2-3">2–3 years</option>
-      <option value="4+">4+ years</option>
-    </select>
+<label>Experience</label>
+<select id="experience">
+  <option value="0-1">0–1 years</option>
+  <option value="2-4">2–4 years</option>
+  <option value="5+">5+ years</option>
+</select>
 
-    <select id="company">
-      <option value="General">General</option>
-      <option value="Google">Google</option>
-    </select>
+<label>Target Company</label>
+<select id="company">
+  <option value="Google">Google</option>
+  <option value="Amazon">Amazon</option>
+  <option value="General">General</option>
+</select>
 
-    <button id="startBtn">Start Interview</button>
-  </div>
+<button id="startBtn">Start Interview</button>
 
-  <script src="js/setup.js"></script>
+<script src="setup.js"></script>
 </body>
 </html>
