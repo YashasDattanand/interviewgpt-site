@@ -1,7 +1,7 @@
-function startInterview() {
-  const role = document.getElementById("role").value;
-  const experience = document.getElementById("experience").value;
-  const company = document.getElementById("company").value;
+function start() {
+  const role = role.value;
+  const experience = experience.value;
+  const company = company.value;
 
   if (!role || !experience) {
     alert("Select role and experience");
@@ -9,5 +9,6 @@ function startInterview() {
   }
 
   localStorage.setItem("setup", JSON.stringify({ role, experience, company }));
-  window.location.href = "interview.html";
+  localStorage.setItem("conversation", JSON.stringify([]));
+  location.href = "interview.html";
 }
