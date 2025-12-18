@@ -1,45 +1,9 @@
-body {
-  background: #0f172a;
-  font-family: Arial, sans-serif;
-  color: white;
-}
-
-.container {
-  width: 800px;
-  margin: auto;
-  padding: 20px;
-}
-
-select, textarea, button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 10px;
-}
-
-button {
-  background: #2563eb;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #1d4ed8;
-}
-
-#chatBox {
-  height: 300px;
-  overflow-y: auto;
-  border: 1px solid #334155;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-.hidden {
-  display: none;
-}
-
-.controls button {
-  width: 24%;
-  display: inline-block;
-}
+body { background:#0f172a; color:white; font-family:Arial }
+.center { display:flex; justify-content:center; align-items:center; height:100vh }
+.card, .chat-card { background:#020617; padding:20px; width:400px; border-radius:10px }
+select, textarea, button { width:100%; margin-top:10px; padding:10px }
+.chat-card { width:600px }
+#chat { height:300px; overflow:auto; border:1px solid #334155; padding:10px }
+.user { text-align:right; color:#38bdf8 }
+.coach { text-align:left; color:#facc15 }
+.row button { width:24% }
