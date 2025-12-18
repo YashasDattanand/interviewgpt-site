@@ -1,14 +1,28 @@
-function start() {
-  const role = role.value;
-  const experience = experience.value;
-  const company = company.value;
+document.getElementById("startBtn").addEventListener("click", () => {
+  const roleEl = document.getElementById("role");
+  const expEl = document.getElementById("experience");
+  const companyEl = document.getElementById("company");
+
+  const role = roleEl.value;
+  const experience = expEl.value;
+  const company = companyEl.value;
 
   if (!role || !experience) {
-    alert("Select role and experience");
+    alert("Please select role and experience");
     return;
   }
 
-  localStorage.setItem("setup", JSON.stringify({ role, experience, company }));
+  const setupData = {
+    role,
+    experience,
+    company
+  };
+
+  localStorage.setItem("setup", JSON.stringify(setupData));
   localStorage.setItem("conversation", JSON.stringify([]));
-  location.href = "interview.html";
-}
+
+  console.log("Setup saved:", setupData);
+
+  // ✅ THIS IS THE IMPORTANT LINE
+  window.location.href = "interview.html";
+});
