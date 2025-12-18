@@ -1,57 +1,54 @@
-const BACKEND = "https://interview-gpt-backend-00vj.onrender.com";
-
-let conversation = JSON.parse(localStorage.getItem("conversation")) || [];
-
 const chat = document.getElementById("chat");
+const input = document.getElementById("input");
 
-function render(role, text) {
-  const div = document.createElement("div");
-  div.className = role;
-  div.innerText = text;
-  chat.appendChild(div);
+const setup = JSON.parse(localStorage.getItem("setup"));
+let conversation = [];
+
+let recognition;
+
+function startMic() {
+  recognition = new webkitSpeechRecognition();
+  recognition.continuous = true;
+  recognition.onresult = e => {
+    input.value += " " + e.results[e.results.length - 1][0].transcript;
+  };
+  recognition.start();
 }
 
-async function sendText() {
-  const text = input.value.trim();
-  if (!text) return;
+function stopMic() {
+  if (recognition) recognition.stop();
+}
 
-  render("user", text);
+function addMessage(role, text) {
+  chat.innerHTML += `<p><b>${role}:</b> ${text}</p>`;
+}
+
+async function sendAnswer() {
+  const answer = input.value.trim();
+  if (!answer) return;
+
+  addMessage("You", answer);
+  conversation.push({ role: "user", content: answer });
   input.value = "";
 
-  conversation.push({ role: "user", content: text });
-
-  const res = await fetch(`${BACKEND}/interview`, {
+  const res = await fetch("https://interview-gpt-backend-00vj.onrender.com/interview", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      role: localStorage.getItem("role"),
-      experience: localStorage.getItem("experience"),
-      company: localStorage.getItem("company"),
-      conversation,
-      userText: text
+      role: setup.role,
+      experience: setup.experience,
+      company: setup.company,
+      conversation
     })
   });
 
   const data = await res.json();
 
-  render("assistant", data.question);
+  addMessage("Coach", data.question);
   conversation.push({ role: "assistant", content: data.question });
-
-  localStorage.setItem("conversation", JSON.stringify(conversation));
-}
-
-function startMic() {
-  const rec = new webkitSpeechRecognition();
-  rec.continuous = false;
-  rec.lang = "en-US";
-
-  rec.onresult = e => {
-    input.value = e.results[0][0].transcript;
-  };
-
-  rec.start();
 }
 
 function endInterview() {
+  localStorage.setItem("conversation", JSON.stringify(conversation));
   window.location.href = "feedback.html";
 }
