@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Feedback</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <title>InterviewGPT – Feedback</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-  <h2>Interview Feedback</h2>
-  <canvas id="chart"></canvas>
-  <div id="textFeedback"></div>
+<body onload="loadFeedback()">
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/feedback.js"></script>
+<h2>Your Interview Feedback</h2>
+
+<pre id="output">Loading...</pre>
+
+<script src="js/feedback.js"></script>
 </body>
 </html>
