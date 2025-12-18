@@ -1,11 +1,33 @@
 body {
-  font-family: Arial;
   background: #0f172a;
+  font-family: Arial, sans-serif;
   color: white;
+}
+
+.container {
+  width: 800px;
+  margin: auto;
   padding: 20px;
 }
 
-#chat {
+select, textarea, button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+#chatBox {
   height: 300px;
   overflow-y: auto;
   border: 1px solid #334155;
@@ -13,17 +35,11 @@ body {
   margin-bottom: 10px;
 }
 
-.user {
-  text-align: right;
-  color: #38bdf8;
+.hidden {
+  display: none;
 }
 
-.assistant {
-  text-align: left;
-  color: #fbbf24;
-}
-
-textarea {
-  width: 100%;
-  height: 60px;
+.controls button {
+  width: 24%;
+  display: inline-block;
 }
