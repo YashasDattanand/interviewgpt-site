@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>InterviewGPT – Interview</title>
+  <title>Mock Interview</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <h1>Mock Interview</h1>
 
-<h2>Coach</h2>
+  <div id="chat"></div>
 
-<div id="chat"></div>
+  <textarea id="input" placeholder="Speak or type..."></textarea>
 
-<textarea id="input" placeholder="Type your answer..."></textarea>
+  <button onclick="startMic()">🎤 Start</button>
+  <button onclick="stopMic()">⛔ Stop</button>
+  <button onclick="sendAnswer()">Submit</button>
+  <button onclick="endInterview()">End</button>
 
-<button onclick="sendText()">Send</button>
-<button onclick="startMic()">🎤 Start Mic</button>
-<button onclick="endInterview()">End Interview</button>
-
-<script src="js/interview.js"></script>
+  <script src="js/interview.js"></script>
 </body>
 </html>
