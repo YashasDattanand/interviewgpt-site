@@ -1,49 +1,62 @@
-const BACKEND = "https://interview-gpt-backend-00vj.onrender.com";
+const chatBox = document.getElementById("chatBox");
+const input = document.getElementById("input");
 
-let conversation = JSON.parse(sessionStorage.getItem("conversation")) || [];
 const role = sessionStorage.getItem("role");
 const experience = sessionStorage.getItem("experience");
 const company = sessionStorage.getItem("company");
 
-function renderChat() {
-  const box = document.getElementById("chat");
-  box.innerHTML = "";
-  conversation.forEach(m => {
-    const div = document.createElement("div");
-    div.className = m.role;
-    div.innerText = `${m.role === "user" ? "You" : "Coach"}: ${m.content}`;
-    box.appendChild(div);
-  });
+if (!role || !experience) {
+  alert("Setup missing. Redirecting.");
+  window.location.href = "index.html";
 }
 
-async function sendMessage() {
-  const input = document.getElementById("input");
-  if (!input.value.trim()) return;
+let conversation = [];
 
-  conversation.push({ role: "user", content: input.value });
-  input.value = "";
-  renderChat();
+function addMessage(sender, text) {
+  const div = document.createElement("div");
+  div.innerHTML = `<b>${sender}:</b> ${text}`;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
 
-  const res = await fetch(`${BACKEND}/interview`, {
+async function askBackend() {
+  const res = await fetch("https://interview-gpt-backend-00vj.onrender.com/interview", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ role, experience, company, conversation }),
+    body: JSON.stringify({
+      role,
+      experience,
+      company,
+      conversation
+    })
   });
 
   const data = await res.json();
   conversation.push({ role: "assistant", content: data.question });
-  sessionStorage.setItem("conversation", JSON.stringify(conversation));
-  renderChat();
+  addMessage("Coach", data.question);
 }
 
-async function endInterview() {
-  const res = await fetch(`${BACKEND}/feedback`, {
+document.getElementById("sendBtn").onclick = async () => {
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = "";
+  conversation.push({ role: "user", content: text });
+  addMessage("You", text);
+
+  await askBackend();
+};
+
+document.getElementById("endBtn").onclick = async () => {
+  const res = await fetch("https://interview-gpt-backend-00vj.onrender.com/feedback", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ conversation }),
+    body: JSON.stringify({ conversation })
   });
 
-  const data = await res.json();
-  sessionStorage.setItem("feedback", JSON.stringify(data));
+  sessionStorage.setItem("feedback", JSON.stringify(await res.json()));
   window.location.href = "feedback.html";
-}
+};
+
+// First question
+askBackend();
