@@ -1,24 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Interview</title>
+  <title>Mock Interview</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="chat-card">
-    <h2>Coach</h2>
-    <div id="chat"></div>
 
-    <textarea id="input" placeholder="Speak or type..."></textarea>
+<h1>Coach</h1>
 
-    <div class="row">
-      <button onclick="startMic()">🎤</button>
-      <button onclick="stopMic()">⛔</button>
-      <button onclick="send()">Send</button>
-      <button onclick="end()">End</button>
-    </div>
-  </div>
+<div id="chatBox"></div>
 
-  <script src="app.js"></script>
+<textarea id="input" placeholder="Speak or type..."></textarea>
+
+<div class="controls">
+  <button id="micBtn">🎤</button>
+  <button id="sendBtn">Send</button>
+  <button id="endBtn">End</button>
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
