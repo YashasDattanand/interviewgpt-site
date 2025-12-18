@@ -1,24 +1,25 @@
-const BACKEND = "https://interview-gpt-backend-00vj.onrender.com";
-const convo = JSON.parse(localStorage.getItem("conversation"));
+const data = JSON.parse(sessionStorage.getItem("feedback"));
 
-fetch(`${BACKEND}/feedback`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ conversation: convo })
-})
-.then(r => r.json())
-.then(d => {
-  new Chart(chart, {
-    type: "radar",
-    data: {
-      labels: Object.keys(d.scores),
-      datasets: [{ data: Object.values(d.scores) }]
-    }
-  });
+document.getElementById("strengths").innerHTML =
+  data.strengths.map(s => `<li>${s}</li>`).join("");
 
-  text.innerHTML = `
-    <h3>Strengths</h3><ul>${d.strengths.map(x=>`<li>${x}</li>`).join("")}</ul>
-    <h3>Weaknesses</h3><ul>${d.weaknesses.map(x=>`<li>${x}</li>`).join("")}</ul>
-    <h3>Improvements</h3><ul>${d.improvements.map(x=>`<li>${x}</li>`).join("")}</ul>
-  `;
+document.getElementById("weaknesses").innerHTML =
+  data.weaknesses.map(s => `<li>${s}</li>`).join("");
+
+document.getElementById("improvements").innerHTML =
+  data.improvements.map(s => `<li>${s}</li>`).join("");
+
+new Chart(document.getElementById("chart"), {
+  type: "radar",
+  data: {
+    labels: ["Communication", "Clarity", "Confidence"],
+    datasets: [{
+      data: [
+        data.scores.communication,
+        data.scores.clarity,
+        data.scores.confidence
+      ],
+      backgroundColor: "rgba(0,200,255,0.3)"
+    }]
+  }
 });
