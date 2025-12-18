@@ -1,54 +1,40 @@
-const chat = document.getElementById("chat");
-const input = document.getElementById("input");
+const chatBox = document.getElementById("chat");
+const input = document.getElementById("answer");
 
-const setup = JSON.parse(localStorage.getItem("setup"));
 let conversation = [];
 
-let recognition;
+async function submitAnswer() {
+  const text = input.value.trim();
+  if (!text) return;
 
-function startMic() {
-  recognition = new webkitSpeechRecognition();
-  recognition.continuous = true;
-  recognition.onresult = e => {
-    input.value += " " + e.results[e.results.length - 1][0].transcript;
-  };
-  recognition.start();
-}
-
-function stopMic() {
-  if (recognition) recognition.stop();
-}
-
-function addMessage(role, text) {
-  chat.innerHTML += `<p><b>${role}:</b> ${text}</p>`;
-}
-
-async function sendAnswer() {
-  const answer = input.value.trim();
-  if (!answer) return;
-
-  addMessage("You", answer);
-  conversation.push({ role: "user", content: answer });
+  appendMessage("You", text);
+  conversation.push({ role: "user", content: text });
   input.value = "";
 
-  const res = await fetch("https://interview-gpt-backend-00vj.onrender.com/interview", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      role: setup.role,
-      experience: setup.experience,
-      company: setup.company,
-      conversation
-    })
-  });
+  const setup = JSON.parse(localStorage.getItem("setup"));
+
+  const res = await fetch(
+    "https://interview-gpt-backend-00vj.onrender.com/interview",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        role: setup.role,
+        experience: setup.experience,
+        company: setup.company,
+        conversation
+      })
+    }
+  );
 
   const data = await res.json();
-
-  addMessage("Coach", data.question);
+  appendMessage("Coach", data.question);
   conversation.push({ role: "assistant", content: data.question });
 }
 
-function endInterview() {
-  localStorage.setItem("conversation", JSON.stringify(conversation));
-  window.location.href = "feedback.html";
+function appendMessage(sender, text) {
+  const p = document.createElement("p");
+  p.innerHTML = `<strong>${sender}:</strong> ${text}`;
+  chatBox.appendChild(p);
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
