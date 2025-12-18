@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Mock Interview</title>
+  <title>Interview</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1>Mock Interview</h1>
+  <div class="chat-card">
+    <h2>Coach</h2>
+    <div id="chat"></div>
 
-  <div id="chat"></div>
+    <textarea id="input" placeholder="Speak or type..."></textarea>
 
-  <textarea id="input" placeholder="Speak or type..."></textarea>
-
-  <button onclick="startMic()">🎤 Start</button>
-  <button onclick="stopMic()">⛔ Stop</button>
-  <button onclick="sendAnswer()">Submit</button>
-  <button onclick="endInterview()">End</button>
+    <div class="row">
+      <button onclick="startMic()">🎤</button>
+      <button onclick="stopMic()">⛔</button>
+      <button onclick="send()">Send</button>
+      <button onclick="end()">End</button>
+    </div>
+  </div>
 
   <script src="js/interview.js"></script>
 </body>
