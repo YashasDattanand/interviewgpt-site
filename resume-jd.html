@@ -3,49 +3,97 @@
 <head>
   <meta charset="UTF-8" />
   <title>AI Resume ↔ JD Matcher</title>
-  <link rel="stylesheet" href="./css/style.css">
+
+  <!-- Optional: your existing style.css -->
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* Fallback styling so page never looks broken */
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b1220;
+      color: #fff;
+      padding: 30px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.05);
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 900px;
+    }
+
+    .row {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 18px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #results {
+      display: none;
+      margin-top: 30px;
+    }
+
+    ul {
+      margin-top: 5px;
+    }
+  </style>
 </head>
+
 <body>
 
-<h1>AI Resume ↔ JD Matcher</h1>
+  <h1>AI Resume ↔ JD Matcher</h1>
 
-<label>Upload Resume (PDF / Text)</label>
-<input type="file" id="resumeFile" />
+  <div class="card">
+    <div class="row">
+      <div>
+        <label><strong>Upload Resume (PDF / Text)</strong></label><br/>
+        <input type="file" id="resume" accept=".pdf,.txt" />
+      </div>
 
-<label>Upload Job Description (PDF / Text)</label>
-<input type="file" id="jdFile" />
+      <div>
+        <label><strong>Upload Job Description (PDF / Text)</strong></label><br/>
+        <input type="file" id="jd" accept=".pdf,.txt" />
+      </div>
+    </div>
 
-<button onclick="analyzeFit()">Analyze Fit</button>
+    <button onclick="analyzeFit()">Analyze Fit</button>
+  </div>
 
-<p id="hintText">
-  Upload your Resume and Job Description, then click <b>Analyze Fit</b> to see AI-powered insights.
-</p>
+  <!-- RESULTS (HIDDEN UNTIL ANALYZE) -->
+  <div id="results" class="card">
+    <h2>Overall Match Score: <span id="score"></span></h2>
 
-<div id="results" style="display:none;">
+    <h3>Company is Looking For</h3>
+    <ul id="company"></ul>
 
-  <h2>Overall Match Score</h2>
-  <div id="score"></div>
+    <h3>Strengths</h3>
+    <ul id="strengths"></ul>
 
-  <h3>Company is Looking For</h3>
-  <div id="companyNeeds"></div>
+    <h3>Weaknesses</h3>
+    <ul id="weaknesses"></ul>
 
-  <h3>Strengths</h3>
-  <div id="strengths"></div>
+    <h3>Opportunities</h3>
+    <ul id="opportunities"></ul>
 
-  <h3>Weaknesses</h3>
-  <div id="weaknesses"></div>
+    <h3>Threats</h3>
+    <ul id="threats"></ul>
 
-  <h3>Opportunities</h3>
-  <div id="opportunities"></div>
+    <h3>Phrase-Level Resume Improvements</h3>
+    <ul id="phrases"></ul>
+  </div>
 
-  <h3>Threats</h3>
-  <div id="threats"></div>
-
-  <h3>Phrase-Level Resume Improvements</h3>
-  <div id="phrases"></div>
-
-</div>
-
-<script src="./js/resume-jd.js"></script>
+  <script src="resume-jd.js"></script>
 </body>
 </html>
