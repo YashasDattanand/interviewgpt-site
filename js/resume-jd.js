@@ -23,31 +23,11 @@ async function analyzeFit() {
     if (!res.ok) throw new Error("Backend failed");
 
     const data = await res.json();
+    console.log(data);
     renderResults(data);
+
   } catch (err) {
     console.error(err);
-    alert("Failed to analyze. Backend error.");
+    alert("Failed to analyze");
   }
-}
-
-function renderResults(data) {
-  document.getElementById("results").style.display = "block";
-  document.getElementById("score").innerText = `${data.score}/100`;
-
-  fillList("strengths", data.strengths);
-  fillList("weaknesses", data.weaknesses);
-  fillList("opportunities", data.opportunities);
-  fillList("threats", data.threats);
-  fillList("company", data.company_looks_for);
-  fillList("phrases", data.phrase_suggestions);
-}
-
-function fillList(id, items) {
-  const ul = document.getElementById(id);
-  ul.innerHTML = "";
-  items.forEach(i => {
-    const li = document.createElement("li");
-    li.textContent = i;
-    ul.appendChild(li);
-  });
 }
