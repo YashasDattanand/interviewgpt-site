@@ -1,12 +1,12 @@
 let conversation = [];
 
 function addMessage(role, text) {
-  const box = document.getElementById("chat");
+  const chat = document.getElementById("chat");
   const div = document.createElement("div");
   div.className = role;
   div.innerHTML = `<b>${role === "assistant" ? "Coach" : "You"}:</b> ${text}`;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
 }
 
 async function sendMessage() {
@@ -19,16 +19,19 @@ async function sendMessage() {
 
   conversation.push({ role: "user", content: text });
 
-  const res = await fetch("https://interview-gpt-backend-00vj.onrender.com/interview", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      role: localStorage.getItem("role"),
-      experience: localStorage.getItem("experience"),
-      company: localStorage.getItem("company"),
-      conversation
-    })
-  });
+  const res = await fetch(
+    "https://interview-gpt-backend-00vj.onrender.com/interview",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        role: localStorage.getItem("role"),
+        experience: localStorage.getItem("experience"),
+        company: localStorage.getItem("company"),
+        conversation
+      })
+    }
+  );
 
   const data = await res.json();
 
@@ -37,23 +40,31 @@ async function sendMessage() {
 }
 
 async function endInterview() {
+  // 🚨 HARD GUARANTEE: at least one evaluation turn
   if (conversation.length === 0) {
-    alert("No interview data found");
-    return;
+    conversation.push({
+      role: "user",
+      content: "Interview ended before answering any questions."
+    });
   }
 
-  const res = await fetch("https://interview-gpt-backend-00vj.onrender.com/feedback", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ conversation })
-  });
+  const res = await fetch(
+    "https://interview-gpt-backend-00vj.onrender.com/feedback",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        conversation,
+        earlyExit: conversation.filter(m => m.role === "user").length < 3
+      })
+    }
+  );
 
   const feedback = await res.json();
 
-  // 🔒 GUARANTEED STORAGE
+  // 🔒 ALWAYS SAVE — NO CONDITIONS
   localStorage.setItem("feedback", JSON.stringify(feedback));
   localStorage.setItem("transcript", JSON.stringify(conversation));
 
-  // 🔁 REDIRECT ONLY AFTER SAVE
   window.location.href = "feedback.html";
 }
