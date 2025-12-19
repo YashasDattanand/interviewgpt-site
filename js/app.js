@@ -7,6 +7,10 @@ const chatBox = document.getElementById("chatBox");
 const input = document.getElementById("input");
 
 let conversation = [];
+let recognition;
+let micActive = false;
+
+/* ---------- UI HELPERS ---------- */
 
 function append(sender, text) {
   const div = document.createElement("div");
@@ -22,6 +26,8 @@ function speak(text) {
   speechSynthesis.speak(u);
 }
 
+/* ---------- AI INTERACTION ---------- */
+
 async function send() {
   const text = input.value.trim();
   if (!text) return;
@@ -30,11 +36,14 @@ async function send() {
   conversation.push({ role: "user", content: text });
   input.value = "";
 
-  const res = await fetch("https://interview-gpt-backend-00vj.onrender.com/interview", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ role, experience, company, conversation })
-  });
+  const res = await fetch(
+    "https://interview-gpt-backend-00vj.onrender.com/interview",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role, experience, company, conversation })
+    }
+  );
 
   const data = await res.json();
   append("Coach", data.reply);
@@ -44,29 +53,50 @@ async function send() {
 }
 
 document.getElementById("sendBtn").onclick = send;
+
 document.getElementById("endBtn").onclick = () => {
+  stopMic();
   localStorage.setItem("conversation", JSON.stringify(conversation));
   window.location.href = "feedback.html";
 };
 
-// 🎤 SPEECH RECOGNITION (REUSABLE FIX)
-let recognition;
+/* ---------- 🎤 SPEECH RECOGNITION (AUTO-RESTART) ---------- */
+
 function initMic() {
   recognition = new webkitSpeechRecognition();
-  recognition.continuous = false;
-  recognition.interimResults = false;
   recognition.lang = "en-US";
+  recognition.continuous = false; // must stay false
+  recognition.interimResults = false;
 
   recognition.onresult = e => {
-    input.value += e.results[0][0].transcript;
+    input.value +=
+      (input.value ? " " : "") + e.results[0][0].transcript;
+  };
+
+  recognition.onend = () => {
+    if (micActive) {
+      recognition.start(); // 🔥 auto-restart
+    }
+  };
+
+  recognition.onerror = e => {
+    console.warn("Mic error:", e);
+    if (micActive) recognition.start();
   };
 }
 
-initMic();
-
-document.getElementById("startMic").onclick = () => {
-  recognition.stop();
+function startMic() {
+  if (!recognition) initMic();
+  micActive = true;
   recognition.start();
-};
+}
 
-document.getElementById("stopMic").onclick = () => recognition.stop();
+function stopMic() {
+  micActive = false;
+  recognition.stop();
+}
+
+document.getElementById("startMic").onclick = startMic;
+document.getElementById("stopMic").onclick = stopMic;
+
+initMic();
