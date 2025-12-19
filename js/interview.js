@@ -1,23 +1,69 @@
-const API_BASE = "https://interview-gpt-backend-00vj.onrender.com";
+const BACKEND_URL = "https://interview-gpt-backend-00vj.onrender.com";
 
-let conversation = [];
-let questionCount = 0;
-
-// DOM
 const chatBox = document.getElementById("chatBox");
 const input = document.getElementById("userInput");
+const startBtn = document.getElementById("startMic");
+const stopBtn = document.getElementById("stopMic");
+const sendBtn = document.getElementById("sendBtn");
+const endBtn = document.getElementById("endBtn");
 
-// ---------- UI helpers ----------
+let recognition;
+let listening = false;
+
+let conversation = [];
+
+// ================= SPEECH SETUP =================
+if ("webkitSpeechRecognition" in window) {
+  recognition = new webkitSpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = false;
+  recognition.lang = "en-US";
+
+  recognition.onresult = (event) => {
+    let transcript = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    input.value += transcript.trim() + " ";
+  };
+
+  recognition.onend = () => {
+    listening = false;
+  };
+}
+
+// ================= UI HELPERS =================
 function addMessage(role, text) {
-  const div = document.createElement("div");
-  div.className = role;
-  div.innerText = `${role === "assistant" ? "Coach" : "You"}: ${text}`;
-  chatBox.appendChild(div);
+  const p = document.createElement("p");
+  p.className = role;
+  p.innerText = `${role === "user" ? "You" : "Coach"}: ${text}`;
+  chatBox.appendChild(p);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// ---------- SEND MESSAGE ----------
-async function sendMessage() {
+function speak(text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+}
+
+// ================= MIC CONTROLS =================
+startBtn.onclick = () => {
+  if (!recognition || listening) return;
+  recognition.start();
+  listening = true;
+};
+
+stopBtn.onclick = () => {
+  if (!recognition || !listening) return;
+  recognition.stop();
+  listening = false;
+};
+
+// ================= SEND MESSAGE =================
+sendBtn.onclick = async () => {
   const text = input.value.trim();
   if (!text) return;
 
@@ -25,34 +71,32 @@ async function sendMessage() {
   conversation.push({ role: "user", content: text });
   input.value = "";
 
-  const body = {
-    role: localStorage.getItem("role"),
-    experience: localStorage.getItem("experience"),
-    company: localStorage.getItem("company"),
-    conversation
-  };
-
-  const res = await fetch(`${API_BASE}/interview`, {
+  const res = await fetch(`${BACKEND_URL}/interview`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
+    body: JSON.stringify({
+      role: localStorage.getItem("role"),
+      experience: localStorage.getItem("experience"),
+      company: localStorage.getItem("company"),
+      conversation
+    })
   });
 
   const data = await res.json();
-
-  if (!data.question) {
-    addMessage("assistant", "Something went wrong. Try again.");
-    return;
-  }
+  if (!data.question) return;
 
   addMessage("assistant", data.question);
-  conversation.push({ role: "assistant", content: data.question });
-  questionCount++;
-}
+  speak(data.question);
 
-// ---------- END INTERVIEW ----------
-async function endInterview() {
-  const res = await fetch(`${API_BASE}/feedback`, {
+  conversation.push({
+    role: "assistant",
+    content: data.question
+  });
+};
+
+// ================= END INTERVIEW =================
+endBtn.onclick = async () => {
+  const res = await fetch(`${BACKEND_URL}/feedback`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ conversation })
@@ -60,13 +104,12 @@ async function endInterview() {
 
   const feedback = await res.json();
 
-  // 🔑 STORE EVERYTHING
+  // 🔴 CRITICAL — THIS ENABLES FEEDBACK PAGE
   localStorage.setItem("feedback", JSON.stringify(feedback));
-  localStorage.setItem("transcript", JSON.stringify(conversation));
+  localStorage.setItem(
+    "transcript",
+    conversation.map(m => `${m.role}: ${m.content}`).join("\n")
+  );
 
   window.location.href = "feedback.html";
-}
-
-// ---------- EVENTS ----------
-document.getElementById("sendBtn").onclick = sendMessage;
-document.getElementById("endBtn").onclick = endInterview;
+};
