@@ -22,3 +22,45 @@ button {
   margin: 5px;
   padding: 10px 15px;
 }
+body.dark-bg {
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  font-family: Arial, sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 40px;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.card {
+  max-width: 600px;
+  margin: auto;
+  background: rgba(255,255,255,0.05);
+  padding: 30px;
+  border-radius: 12px;
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+}
+
+select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: none;
+}
+
+button {
+  margin-top: 25px;
+  background: #38bdf8;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+}
+
