@@ -1,35 +1,29 @@
-const feedback = JSON.parse(localStorage.getItem("feedback"));
+const convo = JSON.parse(localStorage.getItem("conversation")) || [];
 
-const status = document.getElementById("status");
-const scoresDiv = document.getElementById("scores");
+fetch("https://interview-gpt-backend-00vj.onrender.com/feedback", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ conversation: convo })
+})
+.then(res => res.json())
+.then(data => {
+  document.getElementById("feedback").innerHTML = `
+    <h3>Overall Score: ${data.overall || 6}/10</h3>
 
-if (!feedback) {
-  status.innerText = "No feedback available.";
-} else {
-  status.remove();
+    <p><b>Communication:</b> ${data.scores.communication}</p>
+    <p><b>Clarity:</b> ${data.scores.clarity}</p>
+    <p><b>Confidence:</b> ${data.scores.confidence}</p>
 
-  scoresDiv.innerHTML = `
-    <h3>Scores</h3>
-    <p>Communication: ${feedback.scores.communication}/10</p>
-    <p>Clarity: ${feedback.scores.clarity}/10</p>
-    <p>Confidence: ${feedback.scores.confidence}/10</p>
+    <h3>Strengths</h3>
+    <ul>${data.strengths.map(s => `<li>${s}</li>`).join("")}</ul>
+
+    <h3>Weaknesses</h3>
+    <ul>${data.weaknesses.map(w => `<li>${w}</li>`).join("")}</ul>
+
+    <h3>Improvements</h3>
+    <ul>${data.improvements.map(i => `<li>${i}</li>`).join("")}</ul>
   `;
-
-  feedback.strengths.forEach(item => {
-    const li = document.createElement("li");
-    li.innerText = item;
-    document.getElementById("strengths").appendChild(li);
-  });
-
-  feedback.weaknesses.forEach(item => {
-    const li = document.createElement("li");
-    li.innerText = item;
-    document.getElementById("weaknesses").appendChild(li);
-  });
-
-  feedback.improvements.forEach(item => {
-    const li = document.createElement("li");
-    li.innerText = item;
-    document.getElementById("improvements").appendChild(li);
-  });
-}
+})
+.catch(() => {
+  document.getElementById("feedback").innerText = "Feedback generation failed.";
+});
