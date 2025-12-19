@@ -1,58 +1,53 @@
-const API_BASE = "https://interview-gpt-backend-00vj.onrender.com";
-
 async function analyzeFit() {
-  const resumeFile = document.getElementById("resumeFile").files[0];
-  const jdFile = document.getElementById("jdFile").files[0];
+  const resume = document.getElementById("resume").files[0];
+  const jd = document.getElementById("jd").files[0];
 
-  if (!resumeFile || !jdFile) {
+  if (!resume || !jd) {
     alert("Upload both Resume and JD");
     return;
   }
 
   const formData = new FormData();
-  formData.append("resume", resumeFile);
-  formData.append("jd", jdFile);
+  formData.append("resume", resume);
+  formData.append("jd", jd);
 
   try {
-    const res = await fetch(`${API_BASE}/resume-jd/analyze`, {
-      method: "POST",
-      body: formData
-    });
+    const res = await fetch(
+      "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze",
+      {
+        method: "POST",
+        body: formData
+      }
+    );
 
-    if (!res.ok) throw new Error("Backend error");
+    if (!res.ok) throw new Error("Backend failed");
 
     const data = await res.json();
-
-    document.getElementById("results").style.display = "block";
-    document.getElementById("hintText").style.display = "none";
-
-    document.getElementById("score").innerText = `${data.score} / 100`;
-
-    fillList("companyNeeds", data.company_looking_for);
-    fillList("strengths", data.strengths);
-    fillList("weaknesses", data.weaknesses);
-    fillList("opportunities", data.opportunities);
-    fillList("threats", data.threats);
-
-    document.getElementById("phrases").innerHTML =
-      data.phrase_level_improvements
-        .map(
-          p => `
-          <p>
-            ❌ <b>${p.original}</b><br>
-            ✅ ${p.suggested}<br>
-            <i>${p.reason}</i>
-          </p>
-        `
-        )
-        .join("");
+    renderResults(data);
   } catch (err) {
     console.error(err);
-    alert("Failed to analyze. Check backend.");
+    alert("Failed to analyze. Backend error.");
   }
 }
 
+function renderResults(data) {
+  document.getElementById("results").style.display = "block";
+  document.getElementById("score").innerText = `${data.score}/100`;
+
+  fillList("strengths", data.strengths);
+  fillList("weaknesses", data.weaknesses);
+  fillList("opportunities", data.opportunities);
+  fillList("threats", data.threats);
+  fillList("company", data.company_looks_for);
+  fillList("phrases", data.phrase_suggestions);
+}
+
 function fillList(id, items) {
-  document.getElementById(id).innerHTML =
-    "<ul>" + items.map(i => `<li>${i}</li>`).join("") + "</ul>";
+  const ul = document.getElementById(id);
+  ul.innerHTML = "";
+  items.forEach(i => {
+    const li = document.createElement("li");
+    li.textContent = i;
+    ul.appendChild(li);
+  });
 }
