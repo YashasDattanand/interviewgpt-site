@@ -2,38 +2,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const raw = localStorage.getItem("feedback");
 
   if (!raw) {
-    document.getElementById("overall").innerText = "No feedback data found.";
+    document.getElementById("status").innerText = "No feedback data found.";
     return;
   }
 
   const data = JSON.parse(raw);
 
-  // OVERALL SCORE
   document.getElementById("overall").innerText =
-    `Overall Score: ${data.overall || "N/A"}/10`;
+    `Overall Score: ${data.overall || 6}/10`;
 
-  // LIST HELPERS
-  function fillList(id, items) {
-    const ul = document.getElementById(id);
-    ul.innerHTML = "";
-    (items || []).forEach(item => {
+  function fill(id, items) {
+    const el = document.getElementById(id);
+    el.innerHTML = "";
+    items.forEach(i => {
       const li = document.createElement("li");
-      li.innerText = item;
-      ul.appendChild(li);
+      li.innerText = i;
+      el.appendChild(li);
     });
   }
 
-  fillList("strengths", data.strengths);
-  fillList("weaknesses", data.weaknesses);
-  fillList("improvements", data.improvements);
+  fill("strengths", data.strengths || []);
+  fill("weaknesses", data.weaknesses || []);
+  fill("improvements", data.improvements || []);
 
   // RADAR CHART
-  new Chart(document.getElementById("scoreChart"), {
+  new Chart(document.getElementById("radarChart"), {
     type: "radar",
     data: {
       labels: ["Communication", "Clarity", "Confidence", "Structure"],
       datasets: [{
-        label: "Score",
         data: [
           data.scores.communication,
           data.scores.clarity,
@@ -41,18 +38,11 @@ document.addEventListener("DOMContentLoaded", () => {
           data.scores.structure || 6
         ],
         backgroundColor: "rgba(56,189,248,0.25)",
-        borderColor: "#38bdf8",
-        pointBackgroundColor: "#38bdf8"
+        borderColor: "#38bdf8"
       }]
     },
     options: {
-      scales: {
-        r: {
-          suggestedMin: 0,
-          suggestedMax: 10,
-          ticks: { color: "#cbd5f5" }
-        }
-      },
+      scales: { r: { min: 0, max: 10 } },
       plugins: { legend: { display: false } }
     }
   });
@@ -63,18 +53,15 @@ document.addEventListener("DOMContentLoaded", () => {
     data: {
       labels: data.timeline.map((_, i) => `Q${i + 1}`),
       datasets: [{
-        label: "Confidence",
         data: data.timeline,
         borderColor: "#22c55e",
-        backgroundColor: "rgba(34,197,94,0.3)",
-        tension: 0.3
+        backgroundColor: "rgba(34,197,94,0.25)",
+        tension: 0.4
       }]
     },
     options: {
       plugins: { legend: { display: false } },
-      scales: {
-        y: { min: 0, max: 10 }
-      }
+      scales: { y: { min: 0, max: 10 } }
     }
   });
 });
