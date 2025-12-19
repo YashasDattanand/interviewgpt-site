@@ -1,17 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Interview</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <title>InterviewGPT – Interview</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <h2>Coach</h2>
+
+  <h2>AI Interview – Coach Mode</h2>
 
   <div id="chat"></div>
 
-  <input id="input" placeholder="Type answer..." />
-  <button onclick="send()">Send</button>
-  <button onclick="end()">End Interview</button>
+  <textarea
+    id="input"
+    placeholder="Type your answer here or use the mic..."
+  ></textarea>
+
+  <div class="controls">
+    <button onclick="startMic()">🎤 Start</button>
+    <button onclick="stopMic()">⛔ Stop</button>
+    <button onclick="send()">📨 Send</button>
+    <button onclick="endInterview()">✅ End Interview</button>
+  </div>
 
   <script src="js/interview.js"></script>
 </body>
