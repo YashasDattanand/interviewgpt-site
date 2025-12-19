@@ -1,77 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Resume ↔ JD AI Match</title>
+  <title>AI Resume ↔ JD Matcher</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      background: #0b1220;
-      color: white;
-      font-family: Arial;
-      padding: 30px;
-    }
-    input, button {
-      margin: 10px 0;
-    }
-    .card {
-      background: #020617;
-      padding: 20px;
-      margin-top: 20px;
-      border-radius: 10px;
-    }
-  </style>
 </head>
-
 <body>
+  <h1>AI Resume ↔ JD Matcher</h1>
 
-<h1>AI Resume ↔ JD Matcher</h1>
+  <div class="upload-card">
+    <label>Upload Resume (PDF / Text)</label>
+    <input type="file" id="resumeFile" />
 
-<input type="file" id="resume" accept=".pdf,.txt"><br>
-<input type="file" id="jd" accept=".pdf,.txt"><br>
-<button onclick="analyze()">Analyze Fit</button>
+    <label>Upload Job Description (PDF / Text)</label>
+    <input type="file" id="jdFile" />
 
-<div id="result"></div>
-<canvas id="chart"></canvas>
+    <button onclick="analyze()">Analyze Fit</button>
+  </div>
 
-<script>
-async function analyze() {
-  const form = new FormData();
-  form.append("resume", document.getElementById("resume").files[0]);
-  form.append("jd", document.getElementById("jd").files[0]);
-
-  const res = await fetch(
-    "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze",
-    { method: "POST", body: form }
-  );
-
-  const data = await res.json();
-
-  document.getElementById("result").innerHTML = `
-    <div class="card">
-      <h2>Overall Score: ${data.overallScore}/100</h2>
-      <h3>Strengths</h3>
-      <ul>${data.strengths.map(x=>`<li>${x}</li>`).join("")}</ul>
-      <h3>Gaps</h3>
-      <ul>${data.gaps.map(x=>`<li>${x}</li>`).join("")}</ul>
-      <h3>Improvements</h3>
-      <ul>${data.improvements.map(x=>`<li>${x}</li>`).join("")}</ul>
+  <div id="result" class="hidden">
+    <div class="score-card">
+      <h2>Overall Match Score</h2>
+      <div class="big-score" id="overallScore"></div>
     </div>
-  `;
 
-  new Chart(document.getElementById("chart"), {
-    type: "radar",
-    data: {
-      labels: Object.keys(data.scores),
-      datasets: [{
-        label: "Match Score",
-        data: Object.values(data.scores),
-        backgroundColor: "rgba(0,200,255,0.2)",
-        borderColor: "#00c8ff"
-      }]
-    }
-  });
-}
-</script>
+    <div class="grid">
+      <canvas id="scoreChart"></canvas>
 
+      <div class="card">
+        <h3>Company is Looking For</h3>
+        <ul id="companyExpectations"></ul>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card"><h3>Strengths</h3><ul id="strengths"></ul></div>
+      <div class="card"><h3>Weaknesses</h3><ul id="weaknesses"></ul></div>
+      <div class="card"><h3>Opportunities</h3><ul id="opportunities"></ul></div>
+      <div class="card"><h3>Threats</h3><ul id="threats"></ul></div>
+    </div>
+
+    <div class="card">
+      <h3>Phrase-Level Resume Improvements</h3>
+      <div id="phrases"></div>
+    </div>
+  </div>
+
+<script src="resume-jd.js"></script>
 </body>
 </html>
