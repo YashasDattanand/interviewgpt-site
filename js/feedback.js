@@ -1,50 +1,35 @@
-const raw = localStorage.getItem("feedback");
+const feedback = JSON.parse(localStorage.getItem("feedback"));
 
-if (!raw) {
-  document.getElementById("status").innerText =
-    "No feedback data found. Please complete an interview.";
+const status = document.getElementById("status");
+const scoresDiv = document.getElementById("scores");
+
+if (!feedback) {
+  status.innerText = "No feedback available.";
 } else {
-  const data = JSON.parse(raw);
-  document.getElementById("status").innerText = "";
-  document.getElementById("content").style.display = "block";
+  status.remove();
 
-  const avg = Math.round(
-    (data.scores.communication +
-     data.scores.clarity +
-     data.scores.confidence) / 3
-  );
+  scoresDiv.innerHTML = `
+    <h3>Scores</h3>
+    <p>Communication: ${feedback.scores.communication}/10</p>
+    <p>Clarity: ${feedback.scores.clarity}/10</p>
+    <p>Confidence: ${feedback.scores.confidence}/10</p>
+  `;
 
-  document.getElementById("overall").innerText = `Score: ${avg}/10`;
+  feedback.strengths.forEach(item => {
+    const li = document.createElement("li");
+    li.innerText = item;
+    document.getElementById("strengths").appendChild(li);
+  });
 
-  function fill(id, arr) {
-    const ul = document.getElementById(id);
-    arr.forEach(x => {
-      const li = document.createElement("li");
-      li.innerText = x;
-      ul.appendChild(li);
-    });
-  }
+  feedback.weaknesses.forEach(item => {
+    const li = document.createElement("li");
+    li.innerText = item;
+    document.getElementById("weaknesses").appendChild(li);
+  });
 
-  fill("strengths", data.strengths);
-  fill("weaknesses", data.weaknesses);
-  fill("improvements", data.improvements);
-
-  new Chart(document.getElementById("chart"), {
-    type: "bar",
-    data: {
-      labels: ["Communication", "Clarity", "Confidence"],
-      datasets: [{
-        data: [
-          data.scores.communication,
-          data.scores.clarity,
-          data.scores.confidence
-        ],
-        backgroundColor: ["#38bdf8", "#22c55e", "#f59e0b"]
-      }]
-    },
-    options: {
-      scales: { y: { min: 0, max: 10 } },
-      plugins: { legend: { display: false } }
-    }
+  feedback.improvements.forEach(item => {
+    const li = document.createElement("li");
+    li.innerText = item;
+    document.getElementById("improvements").appendChild(li);
   });
 }
