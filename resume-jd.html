@@ -1,51 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>AI Resume ↔ JD Matcher</title>
-  <link rel="stylesheet" href="./css/style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-  <h1>AI Resume ↔ JD Matcher</h1>
 
-  <div class="upload-card">
-    <label>Upload Resume (PDF / Text)</label>
-    <input type="file" id="resumeFile" />
+<h1>AI Resume ↔ JD Matcher</h1>
 
-    <label>Upload Job Description (PDF / Text)</label>
-    <input type="file" id="jdFile" />
+<label>Upload Resume (PDF / Text)</label>
+<input type="file" id="resumeFile" />
 
-    <button onclick="analyze()">Analyze Fit</button>
-  </div>
+<label>Upload Job Description (PDF / Text)</label>
+<input type="file" id="jdFile" />
 
-  <div id="result" class="hidden">
-    <div class="score-card">
-      <h2>Overall Match Score</h2>
-      <div class="big-score" id="overallScore"></div>
-    </div>
+<button onclick="analyzeFit()">Analyze Fit</button>
 
-    <div class="grid">
-      <canvas id="scoreChart"></canvas>
+<p id="hintText">
+  Upload your Resume and Job Description, then click <b>Analyze Fit</b> to see AI-powered insights.
+</p>
 
-      <div class="card">
-        <h3>Company is Looking For</h3>
-        <ul id="companyExpectations"></ul>
-      </div>
-    </div>
+<div id="results" style="display:none;">
 
-    <div class="grid">
-      <div class="card"><h3>Strengths</h3><ul id="strengths"></ul></div>
-      <div class="card"><h3>Weaknesses</h3><ul id="weaknesses"></ul></div>
-      <div class="card"><h3>Opportunities</h3><ul id="opportunities"></ul></div>
-      <div class="card"><h3>Threats</h3><ul id="threats"></ul></div>
-    </div>
+  <h2>Overall Match Score</h2>
+  <div id="score"></div>
 
-    <div class="card">
-      <h3>Phrase-Level Resume Improvements</h3>
-      <div id="phrases"></div>
-    </div>
-  </div>
+  <h3>Company is Looking For</h3>
+  <div id="companyNeeds"></div>
 
-<script src="resume-jd.js"></script>
+  <h3>Strengths</h3>
+  <div id="strengths"></div>
+
+  <h3>Weaknesses</h3>
+  <div id="weaknesses"></div>
+
+  <h3>Opportunities</h3>
+  <div id="opportunities"></div>
+
+  <h3>Threats</h3>
+  <div id="threats"></div>
+
+  <h3>Phrase-Level Resume Improvements</h3>
+  <div id="phrases"></div>
+
+</div>
+
+<script src="./js/resume-jd.js"></script>
 </body>
 </html>
