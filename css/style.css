@@ -1,26 +1,25 @@
 body {
-  font-family: Arial;
-  background: #f5f7fb;
+  font-family: Arial, sans-serif;
+  background: #f4f6fb;
   padding: 20px;
 }
 
-#chat {
-  background: white;
-  height: 300px;
-  overflow-y: auto;
-  padding: 10px;
-  margin-bottom: 10px;
+h2 {
+  text-align: center;
 }
 
-button {
-  padding: 8px 12px;
-  margin-top: 5px;
-}
 #chat {
-  height: 420px;
+  background: #fff;
+  border-radius: 8px;
   padding: 16px;
-  font-size: 15px;
-  line-height: 1.5;
+  height: 420px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+}
+
+#chat p {
+  margin: 8px 0;
 }
 
 #input {
@@ -28,5 +27,25 @@ button {
   height: 90px;
   font-size: 16px;
   padding: 10px;
-  resize: none;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+button {
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.85;
 }
