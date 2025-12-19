@@ -4,11 +4,10 @@
   <meta charset="UTF-8" />
   <title>AI Resume ↔ JD Matcher</title>
 
-  <!-- Optional: your existing style.css -->
-  <link rel="stylesheet" href="style.css" />
+  <!-- Optional CSS (safe even if missing) -->
+  <link rel="stylesheet" href="./css/style.css" />
 
   <style>
-    /* Fallback styling so page never looks broken */
     body {
       font-family: Arial, sans-serif;
       background: #0b1220;
@@ -21,7 +20,7 @@
     }
 
     .card {
-      background: rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.06);
       padding: 20px;
       border-radius: 12px;
       max-width: 900px;
@@ -44,10 +43,6 @@
       display: none;
       margin-top: 30px;
     }
-
-    ul {
-      margin-top: 5px;
-    }
   </style>
 </head>
 
@@ -58,12 +53,12 @@
   <div class="card">
     <div class="row">
       <div>
-        <label><strong>Upload Resume (PDF / Text)</strong></label><br/>
+        <strong>Upload Resume (PDF / Text)</strong><br/>
         <input type="file" id="resume" accept=".pdf,.txt" />
       </div>
 
       <div>
-        <label><strong>Upload Job Description (PDF / Text)</strong></label><br/>
+        <strong>Upload Job Description (PDF / Text)</strong><br/>
         <input type="file" id="jd" accept=".pdf,.txt" />
       </div>
     </div>
@@ -71,7 +66,6 @@
     <button onclick="analyzeFit()">Analyze Fit</button>
   </div>
 
-  <!-- RESULTS (HIDDEN UNTIL ANALYZE) -->
   <div id="results" class="card">
     <h2>Overall Match Score: <span id="score"></span></h2>
 
@@ -94,6 +88,8 @@
     <ul id="phrases"></ul>
   </div>
 
+  <!-- ✅ CORRECT PATH -->
   <script src="./js/resume-jd.js"></script>
+
 </body>
 </html>
