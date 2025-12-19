@@ -1,32 +1,12 @@
-import Groq from "groq-sdk";
+async function load() {
+  const conversation = JSON.parse(localStorage.getItem("conversation"));
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  const res = await fetch("https://interview-gpt-backend-00vj.onrender.com/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ conversation })
+  });
 
-export default async function feedback(req, res) {
-  try {
-    const { conversation } = req.body;
-
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      messages: [
-        {
-          role: "system",
-          content: `
-You are an interview evaluator.
-Give structured feedback:
-- scores (communication, clarity, confidence out of 10)
-- strengths
-- weaknesses
-- improvements
-`
-        },
-        ...conversation
-      ]
-    });
-
-    res.json(JSON.parse(completion.choices[0].message.content));
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Feedback generation failed" });
-  }
+  const data = await res.json();
+  document.getElementById("output").textContent = JSON.stringify(data, null, 2);
 }
