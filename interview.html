@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AI Interview</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <title>AI Interview – Coach Mode</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body class="dark-bg">
+
 <h1>AI Interview – Coach Mode</h1>
 
-<div id="chatBox"></div>
+<div id="chatBox" class="chat-box"></div>
 
-<textarea id="input" placeholder="Type or speak..."></textarea>
+<textarea id="userInput" placeholder="Type or speak..."></textarea>
 
 <div class="controls">
-  <button id="startMic">🎤 Start</button>
-  <button id="stopMic">⛔ Stop</button>
-  <button id="sendBtn">Send</button>
-  <button id="endBtn">End Interview</button>
+  <button onclick="startMic()">🎤 Start</button>
+  <button onclick="stopMic()">⛔ Stop</button>
+  <button onclick="sendMessage()">Send</button>
+  <button onclick="endInterview()">End Interview</button>
 </div>
 
-<script src="js/app.js"></script>
+<script src="interview.js"></script>
 </body>
 </html>
