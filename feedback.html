@@ -7,64 +7,63 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Styling -->
+  <!-- PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <style>
     body {
       margin: 0;
-      font-family: "Inter", sans-serif;
+      font-family: "Inter", system-ui, sans-serif;
       background: radial-gradient(circle at top, #0f172a, #020617);
       color: #e5e7eb;
     }
 
     h1 {
       text-align: center;
-      margin: 30px 0 10px;
+      margin: 30px 0 5px;
       font-size: 34px;
-      font-weight: 700;
     }
 
-    #overall {
+    #status {
       text-align: center;
-      font-size: 18px;
       color: #38bdf8;
       margin-bottom: 30px;
     }
 
-    .container {
-      max-width: 1100px;
+    .grid {
+      max-width: 1200px;
       margin: auto;
-      padding: 20px;
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      padding: 20px;
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, #020617, #020617dd);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 0 0 1px rgba(148,163,184,.12);
     }
 
     .card h2 {
       margin-top: 0;
       font-size: 20px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(148,163,184,.15);
+      padding-bottom: 10px;
     }
 
     ul {
-      padding-left: 18px;
-      margin: 10px 0 0;
+      padding-left: 20px;
     }
 
     li {
-      margin-bottom: 8px;
+      margin: 8px 0;
       line-height: 1.5;
     }
 
     canvas {
-      margin-top: 15px;
+      max-height: 260px;
     }
 
     .full {
@@ -77,113 +76,100 @@
     }
 
     button {
-      background: #38bdf8;
-      color: #020617;
+      background: linear-gradient(90deg, #38bdf8, #0ea5e9);
       border: none;
-      border-radius: 8px;
-      padding: 12px 18px;
+      color: #020617;
+      padding: 14px 22px;
+      font-size: 15px;
+      border-radius: 10px;
       margin: 0 10px;
-      font-size: 14px;
-      font-weight: 600;
       cursor: pointer;
+      font-weight: 600;
     }
 
     button:hover {
-      background: #0ea5e9;
+      opacity: .9;
     }
 
     footer {
       text-align: center;
-      margin: 40px 0 20px;
-      color: #64748b;
+      color: #94a3b8;
+      margin-bottom: 30px;
       font-size: 13px;
-    }
-
-    @media (max-width: 900px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-      .full {
-        grid-column: span 1;
-      }
     }
   </style>
 </head>
 
 <body>
 
-  <h1>Interview Feedback</h1>
-  <div id="overall">Loading...</div>
+<h1>Interview Feedback</h1>
+<div id="status">Loading feedback...</div>
 
-  <div class="container">
+<div id="feedbackContent" class="grid" style="display:none">
 
-    <!-- Radar Chart -->
-    <div class="card">
-      <h2>Skill Breakdown</h2>
-      <canvas id="scoreChart"></canvas>
-    </div>
-
-    <!-- Timeline Chart -->
-    <div class="card">
-      <h2>Confidence Over Time</h2>
-      <canvas id="timelineChart"></canvas>
-    </div>
-
-    <!-- Strengths -->
-    <div class="card">
-      <h2>Strengths</h2>
-      <ul id="strengths"></ul>
-    </div>
-
-    <!-- Weaknesses -->
-    <div class="card">
-      <h2>Weaknesses</h2>
-      <ul id="weaknesses"></ul>
-    </div>
-
-    <!-- Improvements -->
-    <div class="card full">
-      <h2>Recommended Improvements</h2>
-      <ul id="improvements"></ul>
-    </div>
-
+  <div class="card full">
+    <h2>Overall Performance</h2>
+    <p id="overall"></p>
   </div>
 
-  <div class="buttons">
-    <button onclick="downloadFeedbackPDF()">Download Feedback PDF</button>
-    <button onclick="downloadTranscript()">Download Transcript</button>
+  <div class="card">
+    <h2>Skill Breakdown</h2>
+    <canvas id="radarChart"></canvas>
   </div>
 
-  <footer>
-    InterviewGPT · AI Coach Evaluation
-  </footer>
+  <div class="card">
+    <h2>Confidence Over Time</h2>
+    <canvas id="timelineChart"></canvas>
+  </div>
 
-  <!-- PDF Export -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <div class="card">
+    <h2>Strengths</h2>
+    <ul id="strengths"></ul>
+  </div>
 
-  <!-- Feedback Logic -->
-  <script src="js/feedback.js"></script>
+  <div class="card">
+    <h2>Weaknesses</h2>
+    <ul id="weaknesses"></ul>
+  </div>
 
-  <!-- PDF Helpers -->
-  <script>
-    function downloadFeedbackPDF() {
-      html2pdf().from(document.body).save("Interview_Feedback.pdf");
-    }
+  <div class="card full">
+    <h2>Recommended Improvements</h2>
+    <ul id="improvements"></ul>
+  </div>
 
-    function downloadTranscript() {
-      const transcript = localStorage.getItem("transcript");
-      if (!transcript) {
-        alert("Transcript not found");
-        return;
-      }
+</div>
 
-      const blob = new Blob([transcript], { type: "text/plain" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "Interview_Transcript.txt";
-      a.click();
-    }
-  </script>
+<div class="buttons">
+  <button onclick="downloadPDF()">Download Feedback PDF</button>
+  <button onclick="downloadTranscript()">Download Transcript</button>
+</div>
+
+<footer>
+  InterviewGPT · AI Coach Evaluation
+</footer>
+
+<script src="js/feedback.js"></script>
+
+<script>
+  function downloadPDF() {
+    const el = document.getElementById("feedbackContent");
+    html2pdf().from(el).set({
+      margin: 0.5,
+      filename: "Interview_Feedback.pdf",
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" }
+    }).save();
+  }
+
+  function downloadTranscript() {
+    const text = localStorage.getItem("transcript") || "No transcript available.";
+    const blob = new Blob([text], { type: "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "Interview_Transcript.txt";
+    a.click();
+  }
+</script>
 
 </body>
 </html>
