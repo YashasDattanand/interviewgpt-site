@@ -1,27 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>InterviewGPT – Setup</title>
+  <title>InterviewGPT Setup</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h2>Setup Interview</h2>
+<h1>Interview Setup</h1>
 
-  <select id="role">
-    <option value="product_manager">Product Manager</option>
-  </select>
+<select id="role">
+  <option value="product_manager">Product Manager</option>
+  <option value="data_analyst">Data Analyst</option>
+</select>
 
-  <select id="experience">
-    <option value="0-1">0–1 years</option>
-  </select>
+<select id="experience">
+  <option value="0-1">0–1 years</option>
+  <option value="2-4">2–4 years</option>
+</select>
 
-  <select id="company">
-    <option>General</option>
-    <option>Google</option>
-  </select>
+<select id="company">
+  <option>Google</option>
+  <option>Amazon</option>
+  <option>Startup</option>
+</select>
 
-  <button onclick="start()">Start Interview</button>
+<button onclick="startInterview()">Start Interview</button>
 
-  <script src="js/setup.js"></script>
+<script>
+function startInterview() {
+  const params = new URLSearchParams({
+    role: role.value,
+    experience: experience.value,
+    company: company.value
+  });
+  window.location.href = "interview.html?" + params.toString();
+}
+</script>
 </body>
 </html>
