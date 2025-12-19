@@ -2,73 +2,110 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>InterviewGPT – Feedback</title>
+  <title>Interview Feedback</title>
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- Styling -->
   <style>
     body {
       margin: 0;
-      font-family: Inter, Arial, sans-serif;
-      background: linear-gradient(135deg, #0f172a, #020617);
+      font-family: "Inter", sans-serif;
+      background: radial-gradient(circle at top, #0f172a, #020617);
       color: #e5e7eb;
-      padding: 40px;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 10px;
+      margin: 30px 0 10px;
+      font-size: 34px;
+      font-weight: 700;
     }
 
-    .overall {
+    #overall {
       text-align: center;
-      font-size: 20px;
-      margin-bottom: 30px;
+      font-size: 18px;
       color: #38bdf8;
+      margin-bottom: 30px;
     }
 
     .container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
       max-width: 1100px;
       margin: auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
     }
 
     .card {
-      background: #020617;
-      border: 1px solid #1e293b;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 0 40px rgba(0,0,0,0.3);
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
     }
 
-    h2 {
+    .card h2 {
       margin-top: 0;
-      border-bottom: 1px solid #1e293b;
+      font-size: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
       padding-bottom: 8px;
-      margin-bottom: 16px;
     }
 
     ul {
       padding-left: 18px;
+      margin: 10px 0 0;
     }
 
     li {
       margin-bottom: 8px;
-      line-height: 1.4;
+      line-height: 1.5;
     }
 
     canvas {
-      max-width: 100%;
+      margin-top: 15px;
     }
 
-    .footer {
+    .full {
+      grid-column: span 2;
+    }
+
+    .buttons {
       text-align: center;
-      margin-top: 40px;
+      margin: 40px 0;
+    }
+
+    button {
+      background: #38bdf8;
+      color: #020617;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      margin: 0 10px;
       font-size: 14px;
-      color: #94a3b8;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0ea5e9;
+    }
+
+    footer {
+      text-align: center;
+      margin: 40px 0 20px;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+      .full {
+        grid-column: span 1;
+      }
     }
   </style>
 </head>
@@ -76,14 +113,20 @@
 <body>
 
   <h1>Interview Feedback</h1>
-  <div id="overall" class="overall">Loading...</div>
+  <div id="overall">Loading...</div>
 
   <div class="container">
 
-    <!-- Chart -->
+    <!-- Radar Chart -->
     <div class="card">
-      <h2>Performance Overview</h2>
+      <h2>Skill Breakdown</h2>
       <canvas id="scoreChart"></canvas>
+    </div>
+
+    <!-- Timeline Chart -->
+    <div class="card">
+      <h2>Confidence Over Time</h2>
+      <canvas id="timelineChart"></canvas>
     </div>
 
     <!-- Strengths -->
@@ -99,19 +142,48 @@
     </div>
 
     <!-- Improvements -->
-    <div class="card">
+    <div class="card full">
       <h2>Recommended Improvements</h2>
       <ul id="improvements"></ul>
     </div>
 
   </div>
 
-  <div class="footer">
-    InterviewGPT · AI Coach Evaluation
+  <div class="buttons">
+    <button onclick="downloadFeedbackPDF()">Download Feedback PDF</button>
+    <button onclick="downloadTranscript()">Download Transcript</button>
   </div>
 
-  <!-- Logic -->
+  <footer>
+    InterviewGPT · AI Coach Evaluation
+  </footer>
+
+  <!-- PDF Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Feedback Logic -->
   <script src="js/feedback.js"></script>
+
+  <!-- PDF Helpers -->
+  <script>
+    function downloadFeedbackPDF() {
+      html2pdf().from(document.body).save("Interview_Feedback.pdf");
+    }
+
+    function downloadTranscript() {
+      const transcript = localStorage.getItem("transcript");
+      if (!transcript) {
+        alert("Transcript not found");
+        return;
+      }
+
+      const blob = new Blob([transcript], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "Interview_Transcript.txt";
+      a.click();
+    }
+  </script>
 
 </body>
 </html>
