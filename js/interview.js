@@ -1,77 +1,25 @@
-const BACKEND_URL = "https://interview-gpt-backend-00vj.onrender.com";
-
-const chatBox = document.getElementById("chatBox");
-const input = document.getElementById("userInput");
-const startBtn = document.getElementById("startMic");
-const stopBtn = document.getElementById("stopMic");
-const sendBtn = document.getElementById("sendBtn");
-const endBtn = document.getElementById("endBtn");
-
-let recognition;
-let listening = false;
-
 let conversation = [];
 
-// ================= SPEECH SETUP =================
-if ("webkitSpeechRecognition" in window) {
-  recognition = new webkitSpeechRecognition();
-  recognition.continuous = true;
-  recognition.interimResults = false;
-  recognition.lang = "en-US";
-
-  recognition.onresult = (event) => {
-    let transcript = "";
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      transcript += event.results[i][0].transcript;
-    }
-    input.value += transcript.trim() + " ";
-  };
-
-  recognition.onend = () => {
-    listening = false;
-  };
-}
-
-// ================= UI HELPERS =================
 function addMessage(role, text) {
-  const p = document.createElement("p");
-  p.className = role;
-  p.innerText = `${role === "user" ? "You" : "Coach"}: ${text}`;
-  chatBox.appendChild(p);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  const box = document.getElementById("chat");
+  const div = document.createElement("div");
+  div.className = role;
+  div.innerHTML = `<b>${role === "assistant" ? "Coach" : "You"}:</b> ${text}`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
 }
 
-function speak(text) {
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 1;
-  utterance.pitch = 1;
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
-}
-
-// ================= MIC CONTROLS =================
-startBtn.onclick = () => {
-  if (!recognition || listening) return;
-  recognition.start();
-  listening = true;
-};
-
-stopBtn.onclick = () => {
-  if (!recognition || !listening) return;
-  recognition.stop();
-  listening = false;
-};
-
-// ================= SEND MESSAGE =================
-sendBtn.onclick = async () => {
+async function sendMessage() {
+  const input = document.getElementById("userInput");
   const text = input.value.trim();
   if (!text) return;
 
-  addMessage("user", text);
-  conversation.push({ role: "user", content: text });
   input.value = "";
+  addMessage("user", text);
 
-  const res = await fetch(`${BACKEND_URL}/interview`, {
+  conversation.push({ role: "user", content: text });
+
+  const res = await fetch("https://interview-gpt-backend-00vj.onrender.com/interview", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -83,20 +31,18 @@ sendBtn.onclick = async () => {
   });
 
   const data = await res.json();
-  if (!data.question) return;
 
   addMessage("assistant", data.question);
-  speak(data.question);
+  conversation.push({ role: "assistant", content: data.question });
+}
 
-  conversation.push({
-    role: "assistant",
-    content: data.question
-  });
-};
+async function endInterview() {
+  if (conversation.length === 0) {
+    alert("No interview data found");
+    return;
+  }
 
-// ================= END INTERVIEW =================
-endBtn.onclick = async () => {
-  const res = await fetch(`${BACKEND_URL}/feedback`, {
+  const res = await fetch("https://interview-gpt-backend-00vj.onrender.com/feedback", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ conversation })
@@ -104,12 +50,10 @@ endBtn.onclick = async () => {
 
   const feedback = await res.json();
 
-  // 🔴 CRITICAL — THIS ENABLES FEEDBACK PAGE
+  // 🔒 GUARANTEED STORAGE
   localStorage.setItem("feedback", JSON.stringify(feedback));
-  localStorage.setItem(
-    "transcript",
-    conversation.map(m => `${m.role}: ${m.content}`).join("\n")
-  );
+  localStorage.setItem("transcript", JSON.stringify(conversation));
 
+  // 🔁 REDIRECT ONLY AFTER SAVE
   window.location.href = "feedback.html";
-};
+}
