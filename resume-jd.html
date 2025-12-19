@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Resume ↔ JD AI Match</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background: #0b1220;
+      color: white;
+      font-family: Arial;
+      padding: 30px;
+    }
+    input, button {
+      margin: 10px 0;
+    }
+    .card {
+      background: #020617;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>AI Resume ↔ JD Matcher</h1>
+
+<input type="file" id="resume" accept=".pdf,.txt"><br>
+<input type="file" id="jd" accept=".pdf,.txt"><br>
+<button onclick="analyze()">Analyze Fit</button>
+
+<div id="result"></div>
+<canvas id="chart"></canvas>
+
+<script>
+async function analyze() {
+  const form = new FormData();
+  form.append("resume", document.getElementById("resume").files[0]);
+  form.append("jd", document.getElementById("jd").files[0]);
+
+  const res = await fetch(
+    "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze",
+    { method: "POST", body: form }
+  );
+
+  const data = await res.json();
+
+  document.getElementById("result").innerHTML = `
+    <div class="card">
+      <h2>Overall Score: ${data.overallScore}/100</h2>
+      <h3>Strengths</h3>
+      <ul>${data.strengths.map(x=>`<li>${x}</li>`).join("")}</ul>
+      <h3>Gaps</h3>
+      <ul>${data.gaps.map(x=>`<li>${x}</li>`).join("")}</ul>
+      <h3>Improvements</h3>
+      <ul>${data.improvements.map(x=>`<li>${x}</li>`).join("")}</ul>
+    </div>
+  `;
+
+  new Chart(document.getElementById("chart"), {
+    type: "radar",
+    data: {
+      labels: Object.keys(data.scores),
+      datasets: [{
+        label: "Match Score",
+        data: Object.values(data.scores),
+        backgroundColor: "rgba(0,200,255,0.2)",
+        borderColor: "#00c8ff"
+      }]
+    }
+  });
+}
+</script>
+
+</body>
+</html>
