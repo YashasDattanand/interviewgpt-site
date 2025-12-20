@@ -37,17 +37,16 @@ async function analyzeFit() {
 }
 
 /* ================================
-   DATA NORMALIZATION (CRITICAL)
+   DATA NORMALIZATION
 ================================ */
 function normalizeData(d) {
   return {
-    score: d.score ?? 0,
+    score: Number(d.score) || 0,
     company: Array.isArray(d.company_looking_for) ? d.company_looking_for : [],
     strengths: Array.isArray(d.strengths) ? d.strengths : [],
     weaknesses: Array.isArray(d.weaknesses) ? d.weaknesses : [],
     opportunities: Array.isArray(d.opportunities) ? d.opportunities : [],
-    threats: Array.isArray(d.threats) ? d.threats : [],
-    phrases: Array.isArray(d.phrases) ? d.phrases : []
+    threats: Array.isArray(d.threats) ? d.threats : []
   };
 }
 
@@ -56,6 +55,8 @@ function normalizeData(d) {
 ================================ */
 function renderResults(d) {
   document.getElementById("results").style.display = "block";
+
+  // ✅ FIXED SCORE DISPLAY
   document.getElementById("score").textContent = `${d.score}/100`;
 
   fillList("company", d.company);
@@ -64,7 +65,6 @@ function renderResults(d) {
   fillList("opportunities", d.opportunities);
   fillList("threats", d.threats);
 
-  renderPhraseImprovements(d.phrases);
   renderCharts(d);
 }
 
@@ -88,40 +88,15 @@ function fillList(id, items) {
 }
 
 /* ================================
-   PHRASE FIXES (NO [object Object])
-================================ */
-function renderPhraseImprovements(phrases) {
-  const ul = document.getElementById("phrases");
-  ul.innerHTML = "";
-
-  if (!phrases.length) {
-    ul.innerHTML = "<li>No phrase-level suggestions available</li>";
-    return;
-  }
-
-  phrases.forEach(p => {
-    if (!p.original || !p.improved) return;
-
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <strong>Before:</strong> ${p.original}<br/>
-      <strong>After:</strong> ${p.improved}
-    `;
-    ul.appendChild(li);
-  });
-}
-
-/* ================================
-   SCORING CHARTS (MID SIZE)
+   CHARTS (MID-SIZED, STABLE)
 ================================ */
 function renderCharts(d) {
-  // Clear old charts if re-run
   document.getElementById("charts").innerHTML = `
     <canvas id="scoreChart"></canvas>
     <canvas id="swotChart"></canvas>
   `;
 
-  /* Match Score Breakdown */
+  // Match Score Donut
   new Chart(document.getElementById("scoreChart"), {
     type: "doughnut",
     data: {
@@ -138,7 +113,7 @@ function renderCharts(d) {
     }
   });
 
-  /* SWOT Volume */
+  // SWOT Bar Chart
   new Chart(document.getElementById("swotChart"), {
     type: "bar",
     data: {
