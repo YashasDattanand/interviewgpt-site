@@ -1,11 +1,14 @@
 const API_URL = "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze";
 
+/* ================================
+   MAIN ACTION
+================================ */
 async function analyzeFit() {
   const resumeFile = document.getElementById("resume").files[0];
   const jdFile = document.getElementById("jd").files[0];
 
   if (!resumeFile || !jdFile) {
-    alert("Please upload both Resume and Job Description");
+    alert("Upload both Resume and JD");
     return;
   }
 
@@ -19,11 +22,12 @@ async function analyzeFit() {
       body: formData
     });
 
-    if (!res.ok) throw new Error("Backend failed");
+    if (!res.ok) throw new Error("Backend error");
 
-    const data = await res.json();
-    console.log(data);
+    const raw = await res.json();
+    console.log("RAW RESPONSE:", raw);
 
+    const data = normalizeData(raw);
     renderResults(data);
 
   } catch (err) {
@@ -32,82 +36,119 @@ async function analyzeFit() {
   }
 }
 
-function renderResults(data) {
+/* ================================
+   DATA NORMALIZATION (CRITICAL)
+================================ */
+function normalizeData(d) {
+  return {
+    score: d.score ?? 0,
+    company: Array.isArray(d.company_looking_for) ? d.company_looking_for : [],
+    strengths: Array.isArray(d.strengths) ? d.strengths : [],
+    weaknesses: Array.isArray(d.weaknesses) ? d.weaknesses : [],
+    opportunities: Array.isArray(d.opportunities) ? d.opportunities : [],
+    threats: Array.isArray(d.threats) ? d.threats : [],
+    phrases: Array.isArray(d.phrases) ? d.phrases : []
+  };
+}
+
+/* ================================
+   RENDER RESULTS
+================================ */
+function renderResults(d) {
   document.getElementById("results").style.display = "block";
+  document.getElementById("score").textContent = `${d.score}/100`;
 
-  document.getElementById("score").textContent = data.score;
+  fillList("company", d.company);
+  fillList("strengths", d.strengths);
+  fillList("weaknesses", d.weaknesses);
+  fillList("opportunities", d.opportunities);
+  fillList("threats", d.threats);
 
-  fillList("company", data.company_looking_for);
-  fillList("strengths", data.strengths);
-  fillList("weaknesses", data.weaknesses);
-  fillList("opportunities", data.opportunities);
-  fillList("threats", data.threats);
+  renderPhraseImprovements(d.phrases);
+  renderCharts(d);
+}
 
-  // Phrase-level improvements (FIXED [Object Object])
-  const phrasesUl = document.getElementById("phrases");
-  phrasesUl.innerHTML = "";
-  data.phrases.forEach(p => {
+/* ================================
+   SAFE LIST RENDERER
+================================ */
+function fillList(id, items) {
+  const ul = document.getElementById(id);
+  ul.innerHTML = "";
+
+  if (!items.length) {
+    ul.innerHTML = "<li>No insights generated</li>";
+    return;
+  }
+
+  items.forEach(text => {
+    const li = document.createElement("li");
+    li.textContent = text;
+    ul.appendChild(li);
+  });
+}
+
+/* ================================
+   PHRASE FIXES (NO [object Object])
+================================ */
+function renderPhraseImprovements(phrases) {
+  const ul = document.getElementById("phrases");
+  ul.innerHTML = "";
+
+  if (!phrases.length) {
+    ul.innerHTML = "<li>No phrase-level suggestions available</li>";
+    return;
+  }
+
+  phrases.forEach(p => {
+    if (!p.original || !p.improved) return;
+
     const li = document.createElement("li");
     li.innerHTML = `
       <strong>Before:</strong> ${p.original}<br/>
       <strong>After:</strong> ${p.improved}
     `;
-    phrasesUl.appendChild(li);
-  });
-
-  renderCharts(data);
-}
-
-function fillList(id, items) {
-  const ul = document.getElementById(id);
-  ul.innerHTML = "";
-  items.forEach(item => {
-    const li = document.createElement("li");
-    li.textContent = item;
     ul.appendChild(li);
   });
 }
 
-function renderCharts(data) {
-  // Skill Radar
-  new Chart(document.getElementById("skillChart"), {
-    type: "radar",
+/* ================================
+   SCORING CHARTS (MID SIZE)
+================================ */
+function renderCharts(d) {
+  // Clear old charts if re-run
+  document.getElementById("charts").innerHTML = `
+    <canvas id="scoreChart"></canvas>
+    <canvas id="swotChart"></canvas>
+  `;
+
+  /* Match Score Breakdown */
+  new Chart(document.getElementById("scoreChart"), {
+    type: "doughnut",
     data: {
-      labels: ["Strengths", "Weaknesses", "Opportunities", "Threats"],
+      labels: ["Matched", "Gap"],
       datasets: [{
-        label: "Profile Balance",
-        data: [
-          data.strengths.length * 10,
-          100 - data.weaknesses.length * 15,
-          data.opportunities.length * 10,
-          100 - data.threats.length * 15
-        ],
-        backgroundColor: "rgba(54,162,235,0.25)",
-        borderColor: "#36a2eb",
-        borderWidth: 2
+        data: [d.score, 100 - d.score],
+        backgroundColor: ["#4CAF50", "#2c2c2c"]
       }]
     },
     options: {
-      scales: {
-        r: {
-          beginAtZero: true,
-          max: 100
-        }
+      plugins: {
+        legend: { position: "bottom" }
       }
     }
   });
 
-  // SWOT Bar
+  /* SWOT Volume */
   new Chart(document.getElementById("swotChart"), {
     type: "bar",
     data: {
       labels: ["Strengths", "Weaknesses", "Opportunities", "Threats"],
       datasets: [{
         data: [
-          data.strengths.length,
-          data.weaknesses.length,
-          data.opportunities.length,
-          data.threats.length
+          d.strengths.length,
+          d.weaknesses.length,
+          d.opportunities.length,
+          d.threats.length
         ],
         backgroundColor: ["#4caf50", "#f44336", "#2196f3", "#ff9800"]
       }]
