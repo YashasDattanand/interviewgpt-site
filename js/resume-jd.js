@@ -13,11 +13,13 @@ async function analyzeFit() {
     return;
   }
 
-  // IMPORTANT: text placeholder for now (works like morning)
-  const resumeText = resumeFile.name;
-  const jdText = jdFile.name;
+  // ⚠️ TEMP: filenames only (until PDF parsing)
+  const payload = {
+    resumeText: resumeFile.name,
+    jdText: jdFile.name
+  };
 
-  console.log("Sending payload →", { resumeText, jdText });
+  console.log("Sending payload →", payload);
 
   try {
     const res = await fetch(
@@ -25,26 +27,24 @@ async function analyzeFit() {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resumeText, jdText })
+        body: JSON.stringify(payload)
       }
     );
 
     const data = await res.json();
+    console.log("Backend response ✅", data);
 
     if (data.error) {
-      console.error("Backend error:", data);
-      alert("Resume analysis failed (LLM error)");
+      alert("Resume analysis failed");
       return;
     }
-
-    console.log("Backend response ✅", data);
 
     document.getElementById("results").style.display = "block";
     document.getElementById("score").innerText =
       `Overall Match Score: ${data.score}/100`;
 
   } catch (err) {
-    console.error("Fetch failed ❌", err);
-    alert("Network / backend failure");
+    console.error("Fetch error ❌", err);
+    alert("Network error");
   }
 }
