@@ -1,3 +1,6 @@
+let overallChart;
+let sectionChart;
+
 async function analyzeFit() {
   const resumeFile = document.getElementById("resume").files[0];
   const jdFile = document.getElementById("jd").files[0];
@@ -32,18 +35,16 @@ async function analyzeFit() {
 function renderResults(data) {
   document.getElementById("results").style.display = "block";
 
-  // ✅ SCORE (FIXED)
-  const score = Math.min(100, Math.round(data.score || 0));
+  const score = Math.max(0, Math.min(100, Math.round(data.score || 0)));
   document.getElementById("score").innerText = score;
 
-  // Utility to render lists safely
   function fillList(id, arr = []) {
     const ul = document.getElementById(id);
     ul.innerHTML = "";
     if (!Array.isArray(arr)) return;
-    arr.forEach(item => {
+    arr.forEach(text => {
       const li = document.createElement("li");
-      li.textContent = item;
+      li.textContent = text;
       ul.appendChild(li);
     });
   }
@@ -57,47 +58,56 @@ function renderResults(data) {
   renderCharts(score, data);
 }
 
+function resetCanvas(id) {
+  const canvas = document.getElementById(id);
+  const parent = canvas.parentNode;
+  parent.removeChild(canvas);
+  const newCanvas = document.createElement("canvas");
+  newCanvas.id = id;
+  parent.appendChild(newCanvas);
+  return newCanvas.getContext("2d");
+}
+
 function renderCharts(score, data) {
-  // Destroy existing charts if re-run
-  if (window.overallChart) window.overallChart.destroy();
-  if (window.sectionChart) window.sectionChart.destroy();
+  // 🔒 HARD RESET CANVAS (NO destroy())
+  const ctx1 = resetCanvas("overallChart");
+  const ctx2 = resetCanvas("sectionChart");
 
-  const ctx1 = document.getElementById("overallChart");
-  const ctx2 = document.getElementById("sectionChart");
-
-  // ✅ OVERALL SCORE DONUT
-  window.overallChart = new Chart(ctx1, {
+  overallChart = new Chart(ctx1, {
     type: "doughnut",
     data: {
       labels: ["Match", "Gap"],
       datasets: [{
         data: [score, 100 - score],
-        backgroundColor: ["#4CAF50", "#333"]
+        backgroundColor: ["#4CAF50", "#2c2c2c"]
       }]
     },
     options: {
-      plugins: { legend: { labels: { color: "#fff" } } }
+      responsive: true,
+      plugins: {
+        legend: {
+          labels: { color: "#fff" }
+        }
+      }
     }
   });
 
-  // ✅ SECTION SCORE BAR (LOGIC-BASED, NOT RANDOM)
-  const sectionScores = [
-    data.strengths?.length || 0,
-    data.weaknesses?.length || 0,
-    data.opportunities?.length || 0,
-    data.threats?.length || 0
-  ];
-
-  window.sectionChart = new Chart(ctx2, {
+  sectionChart = new Chart(ctx2, {
     type: "bar",
     data: {
       labels: ["Strengths", "Weaknesses", "Opportunities", "Threats"],
       datasets: [{
-        data: sectionScores,
+        data: [
+          data.strengths?.length || 0,
+          data.weaknesses?.length || 0,
+          data.opportunities?.length || 0,
+          data.threats?.length || 0
+        ],
         backgroundColor: ["#4CAF50", "#F44336", "#2196F3", "#FF9800"]
       }]
     },
     options: {
+      responsive: true,
       plugins: { legend: { display: false } },
       scales: {
         x: { ticks: { color: "#fff" } },
