@@ -2,41 +2,41 @@
 <html>
 <head>
   <title>AI Resume ↔ JD Matcher</title>
-  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
-  <h1>AI Resume ↔ JD Matcher</h1>
+<h1>AI Resume ↔ JD Matcher</h1>
 
-  <div class="card">
-    <input type="file" id="resume" />
-    <input type="file" id="jd" />
-    <button onclick="analyzeFit()">Analyze Fit</button>
-  </div>
+<div class="card">
+  <input type="file" id="resume" />
+  <input type="file" id="jd" />
+  <button onclick="analyzeFit()">Analyze Fit</button>
+</div>
 
-  <div id="results" style="display:none">
-    <h2 id="score"></h2>
+<div id="results" style="display:none">
+  <h2 id="scoreText"></h2>
 
-    <canvas id="overallChart" width="260"></canvas>
-    <canvas id="sectionChart" width="260"></canvas>
+  <canvas id="donut" width="250"></canvas>
+  <canvas id="bars" width="350"></canvas>
 
-    <h3>Company is Looking For</h3>
-    <ul id="company"></ul>
+  <h3>Company is Looking For</h3>
+  <ul id="company"></ul>
 
-    <h3>Strengths</h3>
-    <ul id="strengths"></ul>
+  <h3>Strengths</h3>
+  <ul id="strengths"></ul>
 
-    <h3>Weaknesses</h3>
-    <ul id="weaknesses"></ul>
+  <h3>Weaknesses</h3>
+  <ul id="weaknesses"></ul>
 
-    <h3>Opportunities</h3>
-    <ul id="opportunities"></ul>
+  <h3>Opportunities</h3>
+  <ul id="opportunities"></ul>
 
-    <h3>Threats</h3>
-    <ul id="threats"></ul>
-  </div>
+  <h3>Threats</h3>
+  <ul id="threats"></ul>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="./js/resume-jd.js"></script>
+<script src="./js/resume-jd.js"></script>
 </body>
 </html>
