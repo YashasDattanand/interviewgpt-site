@@ -4,8 +4,11 @@
   <meta charset="UTF-8" />
   <title>AI Resume ↔ JD Matcher</title>
 
-  <!-- Optional CSS -->
+  <!-- Optional shared CSS -->
   <link rel="stylesheet" href="./css/style.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body {
@@ -23,7 +26,8 @@
       background: rgba(255,255,255,0.06);
       padding: 20px;
       border-radius: 12px;
-      max-width: 900px;
+      max-width: 1000px;
+      margin-bottom: 25px;
     }
 
     .row {
@@ -41,11 +45,17 @@
 
     #results {
       display: none;
-      margin-top: 30px;
     }
 
-    ul {
-      line-height: 1.6;
+    ul li {
+      margin-bottom: 8px;
+    }
+
+    .charts {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -54,25 +64,32 @@
 
   <h1>AI Resume ↔ JD Matcher</h1>
 
+  <!-- Upload Card -->
   <div class="card">
     <div class="row">
       <div>
         <strong>Upload Resume (PDF / Text)</strong><br/>
-        <input type="file" id="resumeFile" accept=".pdf,.txt" />
+        <input type="file" id="resume" accept=".pdf,.txt" />
       </div>
 
       <div>
         <strong>Upload Job Description (PDF / Text)</strong><br/>
-        <input type="file" id="jdFile" accept=".pdf,.txt" />
+        <input type="file" id="jd" accept=".pdf,.txt" />
       </div>
     </div>
 
     <button onclick="analyzeFit()">Analyze Fit</button>
   </div>
 
-  <!-- RESULTS -->
+  <!-- Results -->
   <div id="results" class="card">
     <h2>Overall Match Score: <span id="score"></span>/100</h2>
+
+    <!-- Charts -->
+    <div class="charts">
+      <canvas id="skillChart" width="300" height="300"></canvas>
+      <canvas id="swotChart" width="300" height="300"></canvas>
+    </div>
 
     <h3>Company is Looking For</h3>
     <ul id="company"></ul>
@@ -93,7 +110,7 @@
     <ul id="phrases"></ul>
   </div>
 
-  <!-- JS (must be last) -->
+  <!-- JS -->
   <script src="./js/resume-jd.js"></script>
 
 </body>
