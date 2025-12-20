@@ -1,85 +1,84 @@
-const API = "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze";
+let donutChart = null;
+let barChart = null;
 
-let overallChart, sectionChart;
+async function readFile(file) {
+  return new Promise((res) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.readAsText(file);
+  });
+}
 
 async function analyzeFit() {
   const resume = document.getElementById("resume").files[0];
   const jd = document.getElementById("jd").files[0];
 
-  if (!resume || !jd) {
-    alert("Upload both files");
-    return;
-  }
+  const resumeText = await readFile(resume);
+  const jdText = await readFile(jd);
 
-  const resumeText = await resume.text();
-  const jdText = await jd.text();
+  const r = await fetch(
+    "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resumeText, jdText })
+    }
+  );
 
-  const res = await fetch(API, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ resumeText, jdText })
-  });
-
-  const data = await res.json();
+  const data = await r.json();
   renderResults(data);
 }
 
-function renderResults(data) {
+function renderResults(d) {
   document.getElementById("results").style.display = "block";
-  document.getElementById("score").innerText =
-    `Overall Match Score: ${data.score}/100`;
+  document.getElementById("scoreText").innerText =
+    `Overall Match Score: ${d.score}/100`;
 
-  renderList("company", data.companyLookingFor);
-  renderList("strengths", data.strengths);
-  renderList("weaknesses", data.weaknesses);
-  renderList("opportunities", data.opportunities);
-  renderList("threats", data.threats);
+  fill("company", d.company_looking_for);
+  fill("strengths", d.strengths);
+  fill("weaknesses", d.weaknesses);
+  fill("opportunities", d.opportunities);
+  fill("threats", d.threats);
 
-  renderCharts(data);
-}
+  if (donutChart) donutChart.destroy();
+  if (barChart) barChart.destroy();
 
-function renderList(id, items) {
-  const ul = document.getElementById(id);
-  ul.innerHTML = "";
-  items.forEach(i => {
-    const li = document.createElement("li");
-    li.innerText = i;
-    ul.appendChild(li);
-  });
-}
-
-function renderCharts(data) {
-  if (overallChart) overallChart.destroy();
-  if (sectionChart) sectionChart.destroy();
-
-  overallChart = new Chart(
-    document.getElementById("overallChart"),
+  donutChart = new Chart(
+    document.getElementById("donut"),
     {
       type: "doughnut",
       data: {
         labels: ["Match", "Gap"],
         datasets: [{
-          data: [data.score, 100 - data.score],
+          data: [d.score, 100 - d.score],
           backgroundColor: ["#4caf50", "#333"]
         }]
       }
     }
   );
 
-  sectionChart = new Chart(
-    document.getElementById("sectionChart"),
+  barChart = new Chart(
+    document.getElementById("bars"),
     {
       type: "bar",
       data: {
-        labels: Object.keys(data.sectionScores),
+        labels: Object.keys(d.section_scores),
         datasets: [{
-          data: Object.values(data.sectionScores),
-          backgroundColor: "#2196f3"
+          data: Object.values(d.section_scores),
+          backgroundColor: ["#4caf50","#f44336","#2196f3","#ff9800"]
         }]
       },
-      options: {
-        scales: { y: { max: 100 } }
-      }
+      options: { scales: { y: { max: 100 } } }
     }
   );
+}
+
+function fill(id, arr) {
+  const el = document.getElementById(id);
+  el.innerHTML = "";
+  arr.forEach(v => {
+    const li = document.createElement("li");
+    li.textContent = v;
+    el.appendChild(li);
+  });
 }
