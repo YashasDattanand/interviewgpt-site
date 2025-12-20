@@ -1,6 +1,25 @@
 console.log("resume-jd.js loaded ✅");
 
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
 document.getElementById("analyzeBtn").onclick = analyzeFit;
+
+async function extractTextFromPDF(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+  let text = "";
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const strings = content.items.map(item => item.str);
+    text += strings.join(" ") + "\n";
+  }
+
+  return text;
+}
 
 async function analyzeFit() {
   console.log("Analyze Fit clicked ✅");
@@ -9,19 +28,22 @@ async function analyzeFit() {
   const jdFile = document.getElementById("jd").files[0];
 
   if (!resumeFile || !jdFile) {
-    alert("Upload both files");
+    alert("Upload both Resume and JD");
     return;
   }
 
-  // ⚠️ TEMP: filenames only (until PDF parsing)
-  const payload = {
-    resumeText: resumeFile.name,
-    jdText: jdFile.name
-  };
-
-  console.log("Sending payload →", payload);
-
   try {
+    const resumeText = await extractTextFromPDF(resumeFile);
+    const jdText = await extractTextFromPDF(jdFile);
+
+    console.log("Resume text length:", resumeText.length);
+    console.log("JD text length:", jdText.length);
+
+    const payload = {
+      resumeText: resumeText.slice(0, 3000),
+      jdText: jdText.slice(0, 3000)
+    };
+
     const res = await fetch(
       "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze",
       {
@@ -44,7 +66,7 @@ async function analyzeFit() {
       `Overall Match Score: ${data.score}/100`;
 
   } catch (err) {
-    console.error("Fetch error ❌", err);
-    alert("Network error");
+    console.error("Resume JD error ❌", err);
+    alert("Resume analysis failed");
   }
 }
