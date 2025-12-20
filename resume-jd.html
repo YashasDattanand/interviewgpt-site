@@ -3,8 +3,54 @@
 <head>
   <meta charset="UTF-8" />
   <title>AI Resume ↔ JD Matcher</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="./css/style.css" />
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0b1220;
+      color: #ffffff;
+      padding: 24px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 900px;
+    }
+
+    .row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    button {
+      padding: 10px 18px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    #results {
+      display: none;
+      margin-top: 30px;
+    }
+
+    ul {
+      padding-left: 18px;
+    }
+
+    .score {
+      font-size: 22px;
+      margin-bottom: 15px;
+    }
+  </style>
 </head>
 
 <body>
@@ -12,21 +58,43 @@
   <h1>AI Resume ↔ JD Matcher</h1>
 
   <div class="card">
-    <input type="file" id="resume" accept=".pdf,.txt" />
-    <input type="file" id="jd" accept=".pdf,.txt" />
-    <br /><br />
+    <div class="row">
+      <div>
+        <strong>Upload Resume (PDF / Text)</strong><br />
+        <input type="file" id="resumeFile" accept=".pdf,.txt" />
+      </div>
+
+      <div>
+        <strong>Upload Job Description (PDF / Text)</strong><br />
+        <input type="file" id="jdFile" accept=".pdf,.txt" />
+      </div>
+    </div>
+
     <button id="analyzeBtn">Analyze Fit</button>
-     <div id="results" style="display:none;">
-     <h2 id="score"></h2>
-     </div>
-
   </div>
 
-  <div id="results" style="display:none;">
-    <h2 id="score"></h2>
+  <div id="results" class="card">
+    <div class="score">
+      Overall Match Score: <strong><span id="score">--</span>/100</strong>
+    </div>
+
+    <h3>Company is Looking For</h3>
+    <ul id="company"></ul>
+
+    <h3>Strengths</h3>
+    <ul id="strengths"></ul>
+
+    <h3>Weaknesses</h3>
+    <ul id="weaknesses"></ul>
+
+    <h3>Opportunities</h3>
+    <ul id="opportunities"></ul>
+
+    <h3>Threats</h3>
+    <ul id="threats"></ul>
   </div>
 
-  <!-- ⚠️ IMPORTANT: script at bottom -->
   <script src="./js/resume-jd.js"></script>
+
 </body>
 </html>
