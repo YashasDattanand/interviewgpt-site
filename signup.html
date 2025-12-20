@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sign Up – InterviewGPT</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="page center">
+  <div class="card auth-card">
+    <h2>Create Account</h2>
+
+    <input placeholder="Full Name" id="name">
+    <input placeholder="Email" id="email">
+
+    <select id="batch">
+      <option>Batch</option>
+      <option>2006</option><option>2007</option><option>2008</option>
+      <option>2009</option><option>2010</option><option>2011</option>
+      <option>2012</option><option>2013</option><option>2014</option>
+      <option>2015</option><option>2016</option><option>2017</option>
+      <option>2018</option><option>2019</option><option>2020</option>
+      <option>2021</option><option>2022</option><option>2023</option>
+      <option>2024</option><option>2025</option>
+    </select>
+
+    <select id="course">
+      <option>Course</option>
+      <option>PM</option>
+      <option>DM</option>
+      <option>Others</option>
+    </select>
+
+    <input placeholder="Mobile Number">
+    <input placeholder="Registration Number">
+    <input type="password" placeholder="Password" id="password">
+
+    <button onclick="signup()">Sign Up</button>
+
+    <p class="link-text">
+      Already have an account? <a href="login.html">Login</a>
+    </p>
+  </div>
+</div>
+
+<script>
+function signup() {
+  localStorage.setItem("user", JSON.stringify({
+    name: name.value,
+    email: email.value
+  }));
+  window.location.href = "dashboard.html";
+}
+</script>
+
+</body>
+</html>
