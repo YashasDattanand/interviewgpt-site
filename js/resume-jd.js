@@ -1,14 +1,11 @@
 const API_URL = "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze";
 
-/* ================================
-   MAIN ACTION
-================================ */
 async function analyzeFit() {
   const resumeFile = document.getElementById("resume").files[0];
   const jdFile = document.getElementById("jd").files[0];
 
   if (!resumeFile || !jdFile) {
-    alert("Upload both Resume and JD");
+    alert("Please upload both Resume and Job Description");
     return;
   }
 
@@ -22,12 +19,11 @@ async function analyzeFit() {
       body: formData
     });
 
-    if (!res.ok) throw new Error("Backend error");
+    if (!res.ok) throw new Error("Backend failed");
 
-    const raw = await res.json();
-    console.log("RAW RESPONSE:", raw);
+    const data = await res.json();
+    console.log("Resume-JD Response:", data);
 
-    const data = normalizeData(raw);
     renderResults(data);
 
   } catch (err) {
@@ -36,71 +32,54 @@ async function analyzeFit() {
   }
 }
 
-/* ================================
-   DATA NORMALIZATION (CRITICAL)
-================================ */
-function normalizeData(d) {
-  return {
-    score: d.score ?? 0,
-    company: Array.isArray(d.company_looking_for) ? d.company_looking_for : [],
-    strengths: Array.isArray(d.strengths) ? d.strengths : [],
-    weaknesses: Array.isArray(d.weaknesses) ? d.weaknesses : [],
-    opportunities: Array.isArray(d.opportunities) ? d.opportunities : [],
-    threats: Array.isArray(d.threats) ? d.threats : [],
-    phrases: Array.isArray(d.phrases) ? d.phrases : []
-  };
-}
-
-/* ================================
-   RENDER RESULTS
-================================ */
-function renderResults(d) {
+function renderResults(data) {
   document.getElementById("results").style.display = "block";
-  document.getElementById("score").textContent = `${d.score}/100`;
 
-  fillList("company", d.company);
-  fillList("strengths", d.strengths);
-  fillList("weaknesses", d.weaknesses);
-  fillList("opportunities", d.opportunities);
-  fillList("threats", d.threats);
+  document.getElementById("score").textContent = data.score ?? "N/A";
 
-  renderPhraseImprovements(d.phrases);
-  renderCharts(d);
+  safeFillList("company", data.company_looking_for);
+  safeFillList("strengths", data.strengths);
+  safeFillList("weaknesses", data.weaknesses);
+  safeFillList("opportunities", data.opportunities);
+  safeFillList("threats", data.threats);
+
+  renderPhraseImprovements(data.phrases);
+  renderCharts(data);
 }
 
-/* ================================
-   SAFE LIST RENDERER
-================================ */
-function fillList(id, items) {
+/* ---------- SAFE HELPERS ---------- */
+
+function safeFillList(id, items) {
   const ul = document.getElementById(id);
   ul.innerHTML = "";
 
-  if (!items.length) {
-    ul.innerHTML = "<li>No insights generated</li>";
+  if (!Array.isArray(items) || items.length === 0) {
+    const li = document.createElement("li");
+    li.textContent = "No data available";
+    ul.appendChild(li);
     return;
   }
 
-  items.forEach(text => {
+  items.forEach(item => {
     const li = document.createElement("li");
-    li.textContent = text;
+    li.textContent = item;
     ul.appendChild(li);
   });
 }
 
-/* ================================
-   PHRASE FIXES (NO [object Object])
-================================ */
 function renderPhraseImprovements(phrases) {
   const ul = document.getElementById("phrases");
   ul.innerHTML = "";
 
-  if (!phrases.length) {
-    ul.innerHTML = "<li>No phrase-level suggestions available</li>";
+  if (!Array.isArray(phrases) || phrases.length === 0) {
+    const li = document.createElement("li");
+    li.textContent = "No phrase-level suggestions generated.";
+    ul.appendChild(li);
     return;
   }
 
   phrases.forEach(p => {
-    if (!p.original || !p.improved) return;
+    if (!p || !p.original || !p.improved) return;
 
     const li = document.createElement("li");
     li.innerHTML = `
@@ -111,49 +90,55 @@ function renderPhraseImprovements(phrases) {
   });
 }
 
-/* ================================
-   SCORING CHARTS (MID SIZE)
-================================ */
-function renderCharts(d) {
-  // Clear old charts if re-run
-  document.getElementById("charts").innerHTML = `
-    <canvas id="scoreChart"></canvas>
-    <canvas id="swotChart"></canvas>
-  `;
+/* ---------- CHARTS ---------- */
 
-  /* Match Score Breakdown */
-  new Chart(document.getElementById("scoreChart"), {
-    type: "doughnut",
+function renderCharts(data) {
+  const strengths = Array.isArray(data.strengths) ? data.strengths.length : 0;
+  const weaknesses = Array.isArray(data.weaknesses) ? data.weaknesses.length : 0;
+  const opportunities = Array.isArray(data.opportunities) ? data.opportunities.length : 0;
+  const threats = Array.isArray(data.threats) ? data.threats.length : 0;
+
+  // Radar chart
+  new Chart(document.getElementById("skillChart"), {
+    type: "radar",
     data: {
-      labels: ["Matched", "Gap"],
+      labels: ["Strengths", "Weaknesses", "Opportunities", "Threats"],
       datasets: [{
-        data: [d.score, 100 - d.score],
-        backgroundColor: ["#4CAF50", "#2c2c2c"]
+        label: "Profile Balance",
+        data: [
+          strengths * 10,
+          Math.max(0, 100 - weaknesses * 15),
+          opportunities * 10,
+          Math.max(0, 100 - threats * 15)
+        ],
+        backgroundColor: "rgba(54,162,235,0.25)",
+        borderColor: "#36a2eb",
+        borderWidth: 2
       }]
     },
     options: {
-      plugins: {
-        legend: { position: "bottom" }
+      responsive: true,
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100
+        }
       }
     }
   });
 
-  /* SWOT Volume */
+  // Bar chart
   new Chart(document.getElementById("swotChart"), {
     type: "bar",
     data: {
       labels: ["Strengths", "Weaknesses", "Opportunities", "Threats"],
       datasets: [{
-        data: [
-          d.strengths.length,
-          d.weaknesses.length,
-          d.opportunities.length,
-          d.threats.length
-        ],
+        data: [strengths, weaknesses, opportunities, threats],
         backgroundColor: ["#4caf50", "#f44336", "#2196f3", "#ff9800"]
       }]
     },
     options: {
+      responsive: true,
       plugins: {
         legend: { display: false }
       }
