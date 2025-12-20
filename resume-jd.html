@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>AI Resume ↔ JD Matcher</title>
 
-  <!-- Optional CSS (safe even if missing) -->
+  <!-- Optional CSS -->
   <link rel="stylesheet" href="./css/style.css" />
 
   <style>
@@ -43,6 +43,10 @@
       display: none;
       margin-top: 30px;
     }
+
+    ul {
+      line-height: 1.6;
+    }
   </style>
 </head>
 
@@ -54,20 +58,21 @@
     <div class="row">
       <div>
         <strong>Upload Resume (PDF / Text)</strong><br/>
-        <input type="file" id="resume" accept=".pdf,.txt" />
+        <input type="file" id="resumeFile" accept=".pdf,.txt" />
       </div>
 
       <div>
         <strong>Upload Job Description (PDF / Text)</strong><br/>
-        <input type="file" id="jd" accept=".pdf,.txt" />
+        <input type="file" id="jdFile" accept=".pdf,.txt" />
       </div>
     </div>
 
     <button onclick="analyzeFit()">Analyze Fit</button>
   </div>
 
+  <!-- RESULTS -->
   <div id="results" class="card">
-    <h2>Overall Match Score: <span id="score"></span></h2>
+    <h2>Overall Match Score: <span id="score"></span>/100</h2>
 
     <h3>Company is Looking For</h3>
     <ul id="company"></ul>
@@ -88,7 +93,7 @@
     <ul id="phrases"></ul>
   </div>
 
-  <!-- ✅ CORRECT PATH -->
+  <!-- JS (must be last) -->
   <script src="./js/resume-jd.js"></script>
 
 </body>
