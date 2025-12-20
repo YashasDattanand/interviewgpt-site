@@ -1,33 +1,15 @@
-let donutChart = null;
-let barChart = null;
-
-const MAX_CHARS = 2500; // 🔒 prevents 413
-
-function clip(text) {
-  return text.length > MAX_CHARS ? text.slice(0, MAX_CHARS) : text;
-}
-
-async function readFile(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsText(file);
-  });
-}
-
 async function analyzeFit() {
+  const resumeFile = document.getElementById("resume").files[0];
+  const jdFile = document.getElementById("jd").files[0];
+
+  if (!resumeFile || !jdFile) {
+    alert("Upload both Resume and JD");
+    return;
+  }
+
   try {
-    const resumeFile = document.getElementById("resume").files[0];
-    const jdFile = document.getElementById("jd").files[0];
-
-    if (!resumeFile || !jdFile) {
-      alert("Please upload both Resume and JD");
-      return;
-    }
-
-    let resumeText = clip(await readFile(resumeFile));
-    let jdText = clip(await readFile(jdFile));
+    const resumeText = await extractText(resumeFile);
+    const jdText = await extractText(jdFile);
 
     const res = await fetch(
       "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze",
@@ -38,74 +20,56 @@ async function analyzeFit() {
       }
     );
 
-    // 🔒 HANDLE NON-JSON (413 / HTML)
-    const contentType = res.headers.get("content-type") || "";
-    if (!contentType.includes("application/json")) {
-      throw new Error("Backend rejected request (too large). Try smaller PDF.");
+    if (!res.ok) {
+      throw new Error("Backend failed");
     }
 
     const data = await res.json();
     renderResults(data);
-
   } catch (err) {
     console.error(err);
-    alert("Resume analysis failed. Try smaller files.");
+    alert("Resume analysis failed. Try smaller PDFs.");
   }
 }
 
-function renderResults(d) {
-  document.getElementById("results").style.display = "block";
-  document.getElementById("scoreText").innerText =
-    `Overall Match Score: ${d.score}/100`;
+function renderResults(data) {
+  const results = document.getElementById("results");
+  if (!results) return;
 
-  fill("company", d.company_looking_for);
-  fill("strengths", d.strengths);
-  fill("weaknesses", d.weaknesses);
-  fill("opportunities", d.opportunities);
-  fill("threats", d.threats);
+  results.style.display = "block";
 
-  // destroy safely
-  if (donutChart) { donutChart.destroy(); donutChart = null; }
-  if (barChart) { barChart.destroy(); barChart = null; }
+  document.getElementById("score").innerText = `${data.score}/100`;
 
-  donutChart = new Chart(
-    document.getElementById("donut"),
-    {
-      type: "doughnut",
-      data: {
-        labels: ["Match", "Gap"],
-        datasets: [{
-          data: [d.score, 100 - d.score],
-          backgroundColor: ["#4caf50", "#333"]
-        }]
-      }
-    }
-  );
-
-  barChart = new Chart(
-    document.getElementById("bars"),
-    {
-      type: "bar",
-      data: {
-        labels: Object.keys(d.section_scores),
-        datasets: [{
-          data: Object.values(d.section_scores),
-          backgroundColor: ["#4caf50","#f44336","#2196f3","#ff9800"]
-        }]
-      },
-      options: {
-        scales: { y: { max: 100, beginAtZero: true } }
-      }
-    }
-  );
+  fillList("company", data.company_looking_for);
+  fillList("strengths", data.strengths);
+  fillList("weaknesses", data.weaknesses);
+  fillList("opportunities", data.opportunities);
+  fillList("threats", data.threats);
 }
 
-function fill(id, arr) {
+function fillList(id, items = []) {
   const el = document.getElementById(id);
+  if (!el) return;
+
   el.innerHTML = "";
-  (arr || []).forEach(v => {
+  items.forEach(i => {
     const li = document.createElement("li");
-    li.textContent = v;
+    li.innerText = i;
     el.appendChild(li);
+  });
+}
+
+/* VERY SIMPLE TEXT EXTRACTION */
+function extractText(file) {
+  return new Promise((resolve, reject) => {
+    if (file.type === "text/plain") {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.slice(0, 4000));
+      reader.onerror = reject;
+      reader.readAsText(file);
+    } else {
+      // PDFs – do NOT parse fully, just name + size fallback
+      resolve(`PDF File: ${file.name}`);
+    }
   });
 }
