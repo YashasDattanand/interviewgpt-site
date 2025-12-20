@@ -1,46 +1,65 @@
-async function analyzeFit() {
-  const resume = document.getElementById("resume").files[0];
-  const jd = document.getElementById("jd").files[0];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>AI Resume ↔ JD Matcher</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-  if (!resume || !jd) {
-    alert("Upload both Resume and JD");
-    return;
-  }
+<div class="page">
+  <h1 class="title">AI Resume ↔ JD Matcher</h1>
 
-  const formData = new FormData();
-  formData.append("resume", resume);
-  formData.append("jd", jd);
+  <div class="card upload-card">
+    <div class="upload-grid">
+      <div>
+        <label>Upload Resume (PDF / Text)</label>
+        <input type="file" id="resumeFile">
+      </div>
 
-  const res = await fetch(
-    "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze",
-    {
-      method: "POST",
-      body: formData
-    }
-  );
+      <div>
+        <label>Upload Job Description (PDF / Text)</label>
+        <input type="file" id="jdFile">
+      </div>
 
-  const data = await res.json();
+      <button onclick="analyzeFit()">Analyze Fit</button>
+    </div>
+  </div>
 
-  document.getElementById("results").style.display = "block";
-  document.getElementById("score").innerText = data.overallScore + "%";
+  <!-- RESULTS -->
+  <div id="results" class="card result-card hidden">
+    <h2>Overall Match Score: <span id="score"></span>/100</h2>
+    <h3>Match Breakdown</h3>
+<canvas id="resumeChart" width="350" height="220"></canvas>
 
-  const ctx = document.getElementById("resumeChart").getContext("2d");
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: ["Skills Match", "Experience Fit", "Role Alignment"],
-      datasets: [{
-        data: [
-          data.breakdown.skills,
-          data.breakdown.experience,
-          data.breakdown.role
-        ],
-        backgroundColor: ["#60a5fa", "#34d399", "#fbbf24"]
-      }]
-    },
-    options: {
-      scales: { y: { min: 0, max: 100 } },
-      plugins: { legend: { display: false } }
-    }
-  });
-}
+    <div class="result-grid">
+      <div>
+        <h3>Company is Looking For</h3>
+        <ul id="companyLookingFor"></ul>
+      </div>
+
+      <div>
+        <h3>Strengths</h3>
+        <ul id="strengths"></ul>
+      </div>
+
+      <div>
+        <h3>Weaknesses</h3>
+        <ul id="weaknesses"></ul>
+      </div>
+
+      <div>
+        <h3>Opportunities</h3>
+        <ul id="opportunities"></ul>
+      </div>
+
+      <div>
+        <h3>Threats</h3>
+        <ul id="threats"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="resume-jd.js"></script>
+</body>
+</html>
