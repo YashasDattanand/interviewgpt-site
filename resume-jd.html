@@ -1,54 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>AI Resume ↔ JD Matcher</title>
+async function analyzeFit() {
+  const resume = document.getElementById("resume").files[0];
+  const jd = document.getElementById("jd").files[0];
 
-  <link rel="stylesheet" href="./css/style.css" />
+  if (!resume || !jd) {
+    alert("Upload both Resume and JD");
+    return;
+  }
 
-  <!-- ✅ PDF.js CDN (THIS FIXES EVERYTHING) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-</head>
+  const formData = new FormData();
+  formData.append("resume", resume);
+  formData.append("jd", jd);
 
-<body>
-  <h1>AI Resume ↔ JD Matcher</h1>
+  const res = await fetch(
+    "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze",
+    {
+      method: "POST",
+      body: formData
+    }
+  );
 
-  <div class="card">
-    <div>
-      <strong>Upload Resume (PDF)</strong><br />
-      <input type="file" id="resume" accept=".pdf" />
-    </div>
+  const data = await res.json();
 
-    <div>
-      <strong>Upload Job Description (PDF)</strong><br />
-      <input type="file" id="jd" accept=".pdf" />
-    </div>
+  document.getElementById("results").style.display = "block";
+  document.getElementById("score").innerText = data.overallScore + "%";
 
-    <button onclick="analyzeFit()">Analyze Fit</button>
-  </div>
-
-  <div id="results" class="card" style="display:none;">
-    <h2>Overall Match Score: <span id="score"></span>/100</h2>
-    <h3>Match Breakdown</h3>
-<canvas id="resumeChart" width="350" height="220"></canvas>
-
-    <h3>Company is Looking For</h3>
-    <ul id="company"></ul>
-
-    <h3>Strengths</h3>
-    <ul id="strengths"></ul>
-
-    <h3>Weaknesses</h3>
-    <ul id="weaknesses"></ul>
-
-    <h3>Opportunities</h3>
-    <ul id="opportunities"></ul>
-
-    <h3>Threats</h3>
-    <ul id="threats"></ul>
-
-  </div>
-
-  <script src="./js/resume-jd.js"></script>
-</body>
-</html>
+  const ctx = document.getElementById("resumeChart").getContext("2d");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["Skills Match", "Experience Fit", "Role Alignment"],
+      datasets: [{
+        data: [
+          data.breakdown.skills,
+          data.breakdown.experience,
+          data.breakdown.role
+        ],
+        backgroundColor: ["#60a5fa", "#34d399", "#fbbf24"]
+      }]
+    },
+    options: {
+      scales: { y: { min: 0, max: 100 } },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
