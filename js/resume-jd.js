@@ -1,81 +1,68 @@
 console.log("resume-jd.js loaded ✅");
 
-const API_URL = "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze";
+async function extractTextFromPDF(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
-const analyzeBtn = document.getElementById("analyzeBtn");
-const resumeInput = document.getElementById("resumeFile");
-const jdInput = document.getElementById("jdFile");
+  let text = "";
 
-const resultsDiv = document.getElementById("results");
-const scoreEl = document.getElementById("score");
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(item => item.str).join(" ") + "\n";
+  }
 
-const companyEl = document.getElementById("company");
-const strengthsEl = document.getElementById("strengths");
-const weaknessesEl = document.getElementById("weaknesses");
-const opportunitiesEl = document.getElementById("opportunities");
-const threatsEl = document.getElementById("threats");
-
-analyzeBtn.addEventListener("click", analyzeFit);
+  return text;
+}
 
 async function analyzeFit() {
   console.log("Analyze Fit clicked ✅");
 
-  if (!resumeInput.files[0] || !jdInput.files[0]) {
-    alert("Please upload both Resume and JD files.");
+  const resumeFile = document.getElementById("resume").files[0];
+  const jdFile = document.getElementById("jd").files[0];
+
+  if (!resumeFile || !jdFile) {
+    alert("Upload both Resume and JD PDFs");
     return;
   }
 
-  const payload = {
-    resumeText: resumeInput.files[0].name,
-    jdText: jdInput.files[0].name
-  };
+  const resumeText = await extractTextFromPDF(resumeFile);
+  const jdText = await extractTextFromPDF(jdFile);
 
-  console.log("Sending payload →", payload);
+  console.log("Extracted text lengths:", resumeText.length, jdText.length);
 
-  try {
-    const res = await fetch(API_URL, {
+  const response = await fetch(
+    "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze",
+    {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-    console.log("Backend response ✅", data);
-
-    if (!res.ok || data.error) {
-      throw new Error(data.error || "Backend failed");
+      body: JSON.stringify({ resumeText, jdText })
     }
+  );
 
-    renderResults(data);
+  const data = await response.json();
+  console.log("Backend response ✅", data);
 
-  } catch (err) {
-    console.error("Resume analysis failed ❌", err);
-    alert("Resume analysis failed. Try again.");
-  }
+  renderResults(data);
 }
 
 function renderResults(data) {
-  resultsDiv.style.display = "block";
+  document.getElementById("results").style.display = "block";
+  document.getElementById("score").innerText = data.score;
 
-  scoreEl.textContent = Math.min(
-    Math.max(Math.round(data.score || 0), 0),
-    100
-  );
-
-  renderList(companyEl, data.company_looking_for);
-  renderList(strengthsEl, data.strengths);
-  renderList(weaknessesEl, data.weaknesses);
-  renderList(opportunitiesEl, data.opportunities);
-  renderList(threatsEl, data.threats);
+  fillList("company", data.company_looking_for);
+  fillList("strengths", data.strengths);
+  fillList("weaknesses", data.weaknesses);
+  fillList("opportunities", data.opportunities);
+  fillList("threats", data.threats);
 }
 
-function renderList(el, items) {
+function fillList(id, items = []) {
+  const el = document.getElementById(id);
   el.innerHTML = "";
-  if (!Array.isArray(items)) return;
-
-  items.forEach(item => {
+  items.forEach(i => {
     const li = document.createElement("li");
-    li.textContent = item;
+    li.innerText = i;
     el.appendChild(li);
   });
 }
