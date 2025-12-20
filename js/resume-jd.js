@@ -1,17 +1,6 @@
 console.log("resume-jd.js loaded ✅");
 
-document
-  .getElementById("analyzeBtn")
-  .addEventListener("click", analyzeFit);
-
-async function readFile(file) {
-  if (file.type === "text/plain") {
-    return await file.text();
-  }
-
-  // PDF fallback (simple, safe)
-  return file.name; // avoids 413; upgrade later
-}
+document.getElementById("analyzeBtn").onclick = analyzeFit;
 
 async function analyzeFit() {
   console.log("Analyze Fit clicked ✅");
@@ -24,8 +13,9 @@ async function analyzeFit() {
     return;
   }
 
-  const resumeText = await readFile(resumeFile);
-  const jdText = await readFile(jdFile);
+  // IMPORTANT: text placeholder for now (works like morning)
+  const resumeText = resumeFile.name;
+  const jdText = jdFile.name;
 
   console.log("Sending payload →", { resumeText, jdText });
 
@@ -40,6 +30,13 @@ async function analyzeFit() {
     );
 
     const data = await res.json();
+
+    if (data.error) {
+      console.error("Backend error:", data);
+      alert("Resume analysis failed (LLM error)");
+      return;
+    }
+
     console.log("Backend response ✅", data);
 
     document.getElementById("results").style.display = "block";
@@ -47,7 +44,7 @@ async function analyzeFit() {
       `Overall Match Score: ${data.score}/100`;
 
   } catch (err) {
-    console.error("Analyze failed ❌", err);
-    alert("Resume analysis failed");
+    console.error("Fetch failed ❌", err);
+    alert("Network / backend failure");
   }
 }
