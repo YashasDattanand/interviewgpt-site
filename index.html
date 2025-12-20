@@ -4,36 +4,49 @@
   <title>InterviewGPT Setup</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-<h1>Interview Setup</h1>
+  <div class="page">
 
-<select id="role">
-  <option value="product_manager">Product Manager</option>
-  <option value="data_analyst">Data Analyst</option>
-</select>
+    <h1 class="title">InterviewGPT</h1>
+    <p class="subtitle">AI-powered interview preparation, tailored for you</p>
 
-<select id="experience">
-  <option value="0-1">0–1 years</option>
-  <option value="2-4">2–4 years</option>
-</select>
+    <div class="card setup-card">
+      <h2>Interview Setup</h2>
+      <p class="hint">Choose your role, experience, and company to begin</p>
 
-<select id="company">
-  <option>Google</option>
-  <option>Amazon</option>
-  <option>Startup</option>
-</select>
+      <div class="form-grid">
+        <select id="role">
+          <option value="product_manager">Product Manager</option>
+          <option value="data_analyst">Data Analyst</option>
+        </select>
 
-<button onclick="startInterview()">Start Interview</button>
+        <select id="experience">
+          <option value="0-1">0–1 years</option>
+          <option value="2-4">2–4 years</option>
+        </select>
 
-<script>
-function startInterview() {
-  const params = new URLSearchParams({
-    role: role.value,
-    experience: experience.value,
-    company: company.value
-  });
-  window.location.href = "interview.html?" + params.toString();
-}
-</script>
+        <select id="company">
+          <option>Google</option>
+          <option>Amazon</option>
+          <option>Startup</option>
+        </select>
+
+        <button onclick="startInterview()">Start Interview</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function startInterview() {
+      const params = new URLSearchParams({
+        role: role.value,
+        experience: experience.value,
+        company: company.value
+      });
+      window.location.href = "interview.html?" + params.toString();
+    }
+  </script>
 </body>
 </html>
