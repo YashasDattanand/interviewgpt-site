@@ -1,8 +1,17 @@
 console.log("resume-jd.js loaded ✅");
 
-const btn = document.getElementById("analyzeBtn");
+document
+  .getElementById("analyzeBtn")
+  .addEventListener("click", analyzeFit);
 
-btn.addEventListener("click", analyzeFit);
+async function readFile(file) {
+  if (file.type === "text/plain") {
+    return await file.text();
+  }
+
+  // PDF fallback (simple, safe)
+  return file.name; // avoids 413; upgrade later
+}
 
 async function analyzeFit() {
   console.log("Analyze Fit clicked ✅");
@@ -15,13 +24,10 @@ async function analyzeFit() {
     return;
   }
 
-  // TEMP: no PDF parsing, just names (to prove flow works)
-  const payload = {
-    resumeText: resumeFile.name,
-    jdText: jdFile.name
-  };
+  const resumeText = await readFile(resumeFile);
+  const jdText = await readFile(jdFile);
 
-  console.log("Sending payload →", payload);
+  console.log("Sending payload →", { resumeText, jdText });
 
   try {
     const res = await fetch(
@@ -29,7 +35,7 @@ async function analyzeFit() {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ resumeText, jdText })
       }
     );
 
