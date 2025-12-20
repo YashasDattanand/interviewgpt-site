@@ -1,102 +1,91 @@
+/***********************
+ * INTERVIEW – COACH MODE
+ * SAFE + STABLE VERSION
+ ***********************/
+
+/* ========= CONFIG ========= */
+
+const BACKEND_URL = "https://interview-gpt-backend-00vj.onrender.com";
+
+/* ========= URL PARAMS ========= */
+
 const params = new URLSearchParams(window.location.search);
-const role = params.get("role");
-const experience = params.get("experience");
-const company = params.get("company");
+const role = params.get("role") || "General";
+const experience = params.get("experience") || "0-2";
+const company = params.get("company") || "General";
+
+/* ========= DOM ========= */
 
 const chatBox = document.getElementById("chatBox");
-const input = document.getElementById("input");
+const userInput = document.getElementById("userInput");
 
-let conversation = [];
-let recognition;
-let micActive = false;
+/* ========= UI HELPERS ========= */
 
-/* ---------- UI HELPERS ---------- */
-
-function append(sender, text) {
-  const div = document.createElement("div");
-  div.innerHTML = `<b>${sender}:</b> ${text}`;
-  chatBox.appendChild(div);
+function appendMessage(sender, text) {
+  const msg = document.createElement("div");
+  msg.style.marginBottom = "12px";
+  msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+  chatBox.appendChild(msg);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function speak(text) {
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = 0.95;
-  speechSynthesis.speak(u);
-}
+/* ========= CORE FUNCTION ========= */
 
-/* ---------- AI INTERACTION ---------- */
+async function sendMessage() {
+  const message = userInput.value.trim();
+  if (!message) return;
 
-async function send() {
-  const text = input.value.trim();
-  if (!text) return;
+  appendMessage("You", message);
+  userInput.value = "";
 
-  append("You", text);
-  conversation.push({ role: "user", content: text });
-  input.value = "";
-
-  const res = await fetch(
-    "https://interview-gpt-backend-00vj.onrender.com/interview",
-    {
+  try {
+    const response = await fetch(`${BACKEND_URL}/interview/chat`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role, experience, company, conversation })
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message,
+        role,
+        experience,
+        company
+      })
+    });
+
+    /* ---- HARD SAFETY CHECK ---- */
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error("Backend did not return JSON");
     }
-  );
 
-  const data = await res.json();
-  append("Coach", data.reply);
-  speak(data.reply);
+    const data = await response.json();
 
-  conversation.push({ role: "assistant", content: data.reply });
-}
-
-document.getElementById("sendBtn").onclick = send;
-
-document.getElementById("endBtn").onclick = () => {
-  stopMic();
-  localStorage.setItem("conversation", JSON.stringify(conversation));
-  window.location.href = "feedback.html";
-};
-
-/* ---------- 🎤 SPEECH RECOGNITION (AUTO-RESTART) ---------- */
-
-function initMic() {
-  recognition = new webkitSpeechRecognition();
-  recognition.lang = "en-US";
-  recognition.continuous = false; // must stay false
-  recognition.interimResults = false;
-
-  recognition.onresult = e => {
-    input.value +=
-      (input.value ? " " : "") + e.results[0][0].transcript;
-  };
-
-  recognition.onend = () => {
-    if (micActive) {
-      recognition.start(); // 🔥 auto-restart
+    if (!data.reply) {
+      throw new Error("Invalid backend response");
     }
-  };
 
-  recognition.onerror = e => {
-    console.warn("Mic error:", e);
-    if (micActive) recognition.start();
-  };
+    appendMessage("Coach", data.reply);
+
+  } catch (error) {
+    console.error("Interview Error:", error);
+    appendMessage(
+      "System",
+      "Interview service is temporarily unavailable. Please retry."
+    );
+  }
 }
 
-function startMic() {
-  if (!recognition) initMic();
-  micActive = true;
-  recognition.start();
-}
+/* ========= BUTTON BINDINGS ========= */
 
-function stopMic() {
-  micActive = false;
-  recognition.stop();
-}
+document.getElementById("sendBtn")?.addEventListener("click", sendMessage);
 
-document.getElementById("startMic").onclick = startMic;
-document.getElementById("stopMic").onclick = stopMic;
+userInput?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendMessage();
+});
 
-initMic();
+/* ========= SESSION START MESSAGE ========= */
+
+appendMessage(
+  "Coach",
+  `Welcome! I’ll act as your interview coach for a ${role} role (${experience} yrs) at ${company}. Let’s begin.`
+);
