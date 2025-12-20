@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard – InterviewGPT</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="page">
+  <h1 class="title">Welcome to InterviewGPT</h1>
+  <p class="subtitle">
+    “Success is the sum of small efforts repeated daily.”
+  </p>
+
+  <div class="dashboard-grid">
+    <div class="card tile" onclick="goInterview()">
+      <h3>AI Interview Coach</h3>
+      <p>Practice role-specific interviews with AI follow-ups.</p>
+    </div>
+
+    <div class="card tile" onclick="goResume()">
+      <h3>Resume ↔ JD Matcher</h3>
+      <p>See how well your resume aligns with job descriptions.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function goInterview() {
+  window.location.href = "index.html";
+}
+function goResume() {
+  window.location.href = "resume-jd.html";
+}
+</script>
+
+</body>
+</html>
