@@ -1,16 +1,28 @@
-<input type="file" id="resume" />
-<input type="file" id="jd" />
-<button onclick="analyzeFit()">Analyze Fit</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Resume ↔ JD Matcher</title>
 
-<h2 id="scoreText"></h2>
-<canvas id="donut"></canvas>
-<canvas id="bars"></canvas>
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
 
-<ul id="company"></ul>
-<ul id="strengths"></ul>
-<ul id="weaknesses"></ul>
-<ul id="opportunities"></ul>
-<ul id="threats"></ul>
+<body>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="./js/resume-jd.js"></script>
+  <h1>AI Resume ↔ JD Matcher</h1>
+
+  <div class="card">
+    <input type="file" id="resume" accept=".pdf,.txt" />
+    <input type="file" id="jd" accept=".pdf,.txt" />
+    <br /><br />
+    <button id="analyzeBtn">Analyze Fit</button>
+  </div>
+
+  <div id="results" style="display:none;">
+    <h2 id="score"></h2>
+  </div>
+
+  <!-- ⚠️ IMPORTANT: script at bottom -->
+  <script src="./js/resume-jd.js"></script>
+</body>
+</html>
