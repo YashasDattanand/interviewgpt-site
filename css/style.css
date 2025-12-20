@@ -170,3 +170,71 @@ input, select {
 .tile:hover {
   transform: translateY(-4px);
 }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #020617, #0b1220);
+  color: #e5e7eb;
+}
+
+.page {
+  max-width: 900px;
+  margin: auto;
+  padding: 60px 20px;
+}
+
+.title {
+  font-size: 36px;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  color: #9ca3af;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.setup-card h2 {
+  margin-top: 0;
+}
+
+.hint {
+  color: #9ca3af;
+  margin-bottom: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+select {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-size: 14px;
+}
+
+button {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #4ade80;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
