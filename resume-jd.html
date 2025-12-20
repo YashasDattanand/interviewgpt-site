@@ -4,10 +4,7 @@
   <meta charset="UTF-8" />
   <title>AI Resume ↔ JD Matcher</title>
 
-  <!-- Optional shared CSS -->
   <link rel="stylesheet" href="./css/style.css" />
-
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
@@ -26,8 +23,7 @@
       background: rgba(255,255,255,0.06);
       padding: 20px;
       border-radius: 12px;
-      max-width: 1000px;
-      margin-bottom: 25px;
+      max-width: 900px;
     }
 
     .row {
@@ -45,16 +41,11 @@
 
     #results {
       display: none;
+      margin-top: 30px;
     }
 
-    ul li {
-      margin-bottom: 8px;
-    }
-
-    .charts {
-      display: flex;
-      gap: 30px;
-      flex-wrap: wrap;
+    canvas {
+      max-width: 350px;
       margin-top: 20px;
     }
   </style>
@@ -64,7 +55,6 @@
 
   <h1>AI Resume ↔ JD Matcher</h1>
 
-  <!-- Upload Card -->
   <div class="card">
     <div class="row">
       <div>
@@ -81,16 +71,11 @@
     <button onclick="analyzeFit()">Analyze Fit</button>
   </div>
 
-  <!-- Results -->
   <div id="results" class="card">
     <h2>Overall Match Score: <span id="score"></span>/100</h2>
-    <div id="charts" style="max-width:600px; margin:30px auto;"></div>
 
-    <!-- Charts -->
-    <div class="charts">
-      <canvas id="skillChart" width="300" height="300"></canvas>
-      <canvas id="swotChart" width="300" height="300"></canvas>
-    </div>
+    <canvas id="overallChart"></canvas>
+    <canvas id="sectionChart"></canvas>
 
     <h3>Company is Looking For</h3>
     <ul id="company"></ul>
@@ -106,13 +91,9 @@
 
     <h3>Threats</h3>
     <ul id="threats"></ul>
+  </div>
 
-    </div>
-
-  <!-- JS -->
   <script src="./js/resume-jd.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 
 </body>
 </html>
