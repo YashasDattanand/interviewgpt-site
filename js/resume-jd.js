@@ -1,118 +1,85 @@
-let overallChart;
-let sectionChart;
+const API = "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze";
+
+let overallChart, sectionChart;
 
 async function analyzeFit() {
-  const resumeFile = document.getElementById("resume").files[0];
-  const jdFile = document.getElementById("jd").files[0];
+  const resume = document.getElementById("resume").files[0];
+  const jd = document.getElementById("jd").files[0];
 
-  if (!resumeFile || !jdFile) {
-    alert("Please upload both Resume and Job Description.");
+  if (!resume || !jd) {
+    alert("Upload both files");
     return;
   }
 
-  const formData = new FormData();
-  formData.append("resume", resumeFile);
-  formData.append("jd", jdFile);
+  const resumeText = await resume.text();
+  const jdText = await jd.text();
 
-  try {
-    const res = await fetch(
-      "https://interview-gpt-backend-00vj.onrender.com/resume-jd/analyze",
-      { method: "POST", body: formData }
-    );
+  const res = await fetch(API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ resumeText, jdText })
+  });
 
-    if (!res.ok) throw new Error("Backend failed");
-
-    const data = await res.json();
-    console.log(data);
-    renderResults(data);
-
-  } catch (err) {
-    console.error(err);
-    alert("Failed to analyze");
-  }
+  const data = await res.json();
+  renderResults(data);
 }
 
 function renderResults(data) {
   document.getElementById("results").style.display = "block";
+  document.getElementById("score").innerText =
+    `Overall Match Score: ${data.score}/100`;
 
-  const score = Math.max(0, Math.min(100, Math.round(data.score || 0)));
-  document.getElementById("score").innerText = score;
+  renderList("company", data.companyLookingFor);
+  renderList("strengths", data.strengths);
+  renderList("weaknesses", data.weaknesses);
+  renderList("opportunities", data.opportunities);
+  renderList("threats", data.threats);
 
-  function fillList(id, arr = []) {
-    const ul = document.getElementById(id);
-    ul.innerHTML = "";
-    if (!Array.isArray(arr)) return;
-    arr.forEach(text => {
-      const li = document.createElement("li");
-      li.textContent = text;
-      ul.appendChild(li);
-    });
-  }
-
-  fillList("company", data.company_looking_for);
-  fillList("strengths", data.strengths);
-  fillList("weaknesses", data.weaknesses);
-  fillList("opportunities", data.opportunities);
-  fillList("threats", data.threats);
-
-  renderCharts(score, data);
+  renderCharts(data);
 }
 
-function resetCanvas(id) {
-  const canvas = document.getElementById(id);
-  const parent = canvas.parentNode;
-  parent.removeChild(canvas);
-  const newCanvas = document.createElement("canvas");
-  newCanvas.id = id;
-  parent.appendChild(newCanvas);
-  return newCanvas.getContext("2d");
+function renderList(id, items) {
+  const ul = document.getElementById(id);
+  ul.innerHTML = "";
+  items.forEach(i => {
+    const li = document.createElement("li");
+    li.innerText = i;
+    ul.appendChild(li);
+  });
 }
 
-function renderCharts(score, data) {
-  // 🔒 HARD RESET CANVAS (NO destroy())
-  const ctx1 = resetCanvas("overallChart");
-  const ctx2 = resetCanvas("sectionChart");
+function renderCharts(data) {
+  if (overallChart) overallChart.destroy();
+  if (sectionChart) sectionChart.destroy();
 
-  overallChart = new Chart(ctx1, {
-    type: "doughnut",
-    data: {
-      labels: ["Match", "Gap"],
-      datasets: [{
-        data: [score, 100 - score],
-        backgroundColor: ["#4CAF50", "#2c2c2c"]
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          labels: { color: "#fff" }
-        }
+  overallChart = new Chart(
+    document.getElementById("overallChart"),
+    {
+      type: "doughnut",
+      data: {
+        labels: ["Match", "Gap"],
+        datasets: [{
+          data: [data.score, 100 - data.score],
+          backgroundColor: ["#4caf50", "#333"]
+        }]
       }
     }
-  });
+  );
 
-  sectionChart = new Chart(ctx2, {
-    type: "bar",
-    data: {
-      labels: ["Strengths", "Weaknesses", "Opportunities", "Threats"],
-      datasets: [{
-        data: [
-          data.strengths?.length || 0,
-          data.weaknesses?.length || 0,
-          data.opportunities?.length || 0,
-          data.threats?.length || 0
-        ],
-        backgroundColor: ["#4CAF50", "#F44336", "#2196F3", "#FF9800"]
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: "#fff" } },
-        y: { ticks: { color: "#fff" } }
+  sectionChart = new Chart(
+    document.getElementById("sectionChart"),
+    {
+      type: "bar",
+      data: {
+        labels: Object.keys(data.sectionScores),
+        datasets: [{
+          data: Object.values(data.sectionScores),
+          backgroundColor: "#2196f3"
+        }]
+      },
+      options: {
+        scales: { y: { max: 100 } }
       }
     }
-  });
+  );
 }
